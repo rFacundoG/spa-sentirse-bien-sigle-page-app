@@ -1,0 +1,144 @@
+.carousel-item img {
+    max-height: 590px;
+    /* o la altura que prefieras */
+    object-fit: cover;
+    /* recorta imagen para que encaje */
+    width: 100%;
+}
+
+.btn-outline-success {
+    border-color: white;
+    color: white;
+}
+
+.btn-outline-success:hover {
+    background-color: #8C6E5F;
+    border-color: #8C6E5F;
+    color: white;
+}
+
+.btn-success {
+    background-color: var(--color-button);
+    border-color: var(--color-button);
+}
+
+.btn-success:hover {
+    background-color: #6F5448;
+    border-color: #6F5448;
+}
+
+.btn-success:active,
+.btn-success.active,
+.show>.btn-success.dropdown-toggle {
+    background-color: #6F5448 !important;
+    border-color: #6F5448 !important;
+}
+
+/* ---- colores de "Servicios Populares" (index.html) ---- */
+
+:root {
+    --color-principal-fondo: #F5F0E6;
+    --color-secundario-fondo: #D9D2C5;
+    --color-titulo: #4F463B;
+    --color-texto: #706558;
+    --color-button: #8C6E5F;
+}
+
+.servicio-titulo {
+    color: var(--color-titulo);
+}
+
+.servicio-descripcion {
+    color: var(--color-texto);
+}
+
+.servicio-fondo {
+    background-color: var(--color-secundario-fondo);
+}
+
+.servicio-texto {
+    color: var(--color-texto);
+}
+
+#servicios .btn-success {
+    background-color: var(--color-button);
+    border-color: var(--color-button);
+}
+
+#servicios .btn-success:hover {
+    background-color: #6F5448;
+    border-color: #6F5448;
+}
+
+.card-body .border-top {
+    border-top: 2px solid var(--color-texto) !important;
+}
+
+/* ---- botones de servicios.html ---- */
+
+#services .btn-success {
+    background-color: var(--color-button);
+    border-color: var(--color-button);
+}
+
+#services .btn-success:hover {
+    background-color: #6F5448;
+    border-color: #6F5448;
+}
+
+/*----------------------------------------*/
+
+.icon-hover {
+    color: #fff;
+    transition: all 0.3s ease;
+    padding: 4px;
+}
+
+.icon-hover:hover {
+    color: #ccc;
+    transform: scale(1.1);
+}
+
+.hover-item {
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin: 2px 4px;
+}
+
+.hover-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(3px);
+}
+
+.dropdown-menu {
+    border-radius: 8px;
+    border: none;
+    min-width: 200px;
+}
+
+/*---------------------------------------*/
+.auth-dependent {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/*---------------------------------------*/
+
+/* --- footer ---*/
+
+.hover-scale {
+    transition: color 0.4s ease;
+}
+
+.hover-scale:hover {
+    color: #8C6E5F !important;
+}
+
+/*---------------------------------------*/
+.toast-header img {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+}
+
+/*---------------------------------------*/

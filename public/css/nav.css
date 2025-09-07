@@ -1,0 +1,40 @@
+.playball-regular {
+    font-family: "Playball", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Estilos para navbar transparente y sticky */
+.custom-navbar {
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* Animación desde el centro hacia los lados */
+.nav-animated-link {
+    position: relative;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.nav-animated-link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #fff;
+    transition: width 0.3s ease, left 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-animated-link:hover {
+    color: #f8f9fa;
+}
+
+.nav-animated-link:hover::after {
+    width: 80%;
+    left: 50%;
+}

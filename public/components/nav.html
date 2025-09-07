@@ -1,0 +1,44 @@
+<!-- ----------------------- Nav ----------------------- -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top custom-navbar">
+    <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="#" data-spa-link="home">
+            <img src="assets/icon/LogoSpa.png" alt="Spa Logo" width="60" class="me-2">
+            <span class="text-light fs-2 playball-regular">Spa Sentirse Bien</span>
+        </a>
+        <!-- Botón hamburguesa para móviles -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Enlaces -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link px-3 fw-semibold active text-light nav-animated-link" href="#"
+                        data-spa-link="home">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 fw-semibold text-light nav-animated-link" href="#"
+                        data-spa-link="servicios">Servicios</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 fw-semibold text-light nav-animated-link" href="#"
+                        data-spa-link="contacto">Contacto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 fw-semibold text-light nav-animated-link" href="#"
+                        data-spa-link="productos">Productos</a>
+                </li>
+                <!-- Elementos de autenticación (se ocultarán/mostrarán dinámicamente) -->
+                <li class="nav-item mt-2 mt-lg-0 nav-auth-item">
+                    <button class="btn btn-outline-success ms-2 px-4 rounded-pill" data-bs-toggle="modal"
+                        data-bs-target="#loginModal">Iniciar sesión</button>
+                </li>
+                <li class="nav-item mt-2 mt-lg-0 nav-auth-item">
+                    <a class="btn btn-success ms-2 px-4 rounded-pill" data-bs-toggle="modal"
+                        data-bs-target="#registerModal">Crear cuenta</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

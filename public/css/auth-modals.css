@@ -1,0 +1,115 @@
+/* Estilos para el modal dividido */
+.bg-success-gradient {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+}
+
+.modal-content {
+    border-radius: 0.75rem !important;
+}
+
+/* Ajustes para el panel del logo */
+.col-md-5 {
+    min-height: 450px;
+}
+
+/* Estilos para los inputs */
+.input-group-text {
+    transition: all 0.2s;
+}
+
+.input-group:focus-within .input-group-text {
+    background-color: #e8f5e9;
+    color: #28a745;
+}
+
+/* Botón toggle password */
+#togglePassword {
+    transition: all 0.2s;
+}
+
+#togglePassword:hover {
+    background-color: #f8f9fa;
+}
+
+/* Responsive: en móviles mostramos solo el formulario */
+@media (max-width: 767.98px) {
+    .col-md-5 {
+        display: none !important;
+    }
+}
+
+/*-------------------------------------------------*/
+
+.input-group-text {
+    background-color: transparent;
+    border-color: #ddd;
+}
+
+.form-control {
+    border-color: #ddd;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: none;
+}
+
+/*-------------------------------------------------*/
+
+/* INPUT */
+.custom-input {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    padding: 1.2rem 0.75rem 0.4rem 0.75rem;
+    font-size: 1rem;
+    background: transparent;
+    transition: border-color 0.3s ease;
+}
+
+/* Borde verde al enfocar */
+.custom-input:focus {
+    border-color: #8C6E5F;
+    outline: none;
+}
+
+/* LABEL FLOTANTE */
+.floating-label {
+    position: absolute;
+    top: 1.05rem;
+    left: 0.75rem;
+    color: #aaa;
+    font-size: 1rem;
+    pointer-events: none;
+    background: white;
+    padding: 0 0.25rem;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+/* ANIMACIÓN al enfocar o si hay texto */
+.custom-input:focus+.floating-label,
+.custom-input.has-value+.floating-label {
+    top: -0.6rem;
+    left: 0.6rem;
+    font-size: 0.75rem;
+    color: #8C6E5F;
+    z-index: 2;
+}
+
+/* BOTÓN OJO */
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #aaa;
+    z-index: 3;
+}
+
+.toggle-password:hover {
+    color: #8C6E5F;
+}
