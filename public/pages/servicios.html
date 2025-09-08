@@ -1,6 +1,16 @@
 <div class="container py-5">
-    <h1 class="text-center mb-5">Nuestros Servicios</h1>
-    <p class="lead text-center mb-5">Disfruta de nuestros tratamientos especializados para tu bienestar</p>
+    <h1 class="text-center mb-5 section-title">Servicios Individuales</h1>
+    <p class="lead text-center mb-4">Disfruta de nuestros tratamientos especializados para tu bienestar</p>
+
+    <div class="text-center mb-4 filter-buttons">
+        <button class="btn btn-outline-primary mx-1 filter-btn" data-category="Todos">Todos</button>
+        <button class="btn btn-outline-primary mx-1 filter-btn" data-category="masajes">Masajes</button>
+        <button class="btn btn-outline-primary mx-1 filter-btn" data-category="belleza">Belleza</button>
+        <button class="btn btn-outline-primary mx-1 filter-btn" data-category="tratamientos-faciales">Tratamientos
+            Faciales</button>
+        <button class="btn btn-outline-primary mx-1 filter-btn" data-category="tratamientos-corporales">Tratamientos
+            Corporales</button>
+    </div>
 
     <div class="row" id="services-container">
         <!-- Las cards de servicios se generarán dinámicamente con JavaScript -->
@@ -16,11 +26,16 @@
 <template id="service-card-template">
     <div class="col-md-4 mb-4">
         <div class="card h-100 service-card">
-            <img src="" class="card-img-top" alt="Servicio" id="service-image">
+            <img src="" class="card-img-top" alt="Servicio" id="service-image" />
             <div class="card-body">
-                <h5 class="card-title" id="service-name"></h5>
+                <h5 class="card-title" id="service-title"></h5>
                 <p class="card-text" id="service-description"></p>
-                <p class="card-text"><small class="text-muted" id="service-duration"></small></p>
+                <p class="card-text mb-1">
+                    <strong>Categoría:</strong> <span id="service-category"></span>
+                </p>
+                <p class="card-text mb-1">
+                    <small class="text-muted" id="service-duration"></small>
+                </p>
             </div>
             <div class="card-footer bg-white border-0">
                 <div class="d-flex justify-content-between align-items-center">

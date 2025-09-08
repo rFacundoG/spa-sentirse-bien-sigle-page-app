@@ -1,0 +1,29 @@
+:root {
+    --color-main-background: #F5F0E6;
+    --color-secondary-background: #D9D2C5;
+    --color-btn: #8C6E5F;
+    --color-btn-hover: #6F5448;
+    --color-title: #4F463B;
+}
+
+body.page-servicios {
+    background-color: var(--color-main-background);
+    padding-top: 80px;
+}
+
+body.page-servicios .section-title {
+    position: relative;
+    margin-bottom: 3rem;
+    color: var(--color-title);
+}
+
+body.page-servicios .section-title:after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--color-btn);
+}

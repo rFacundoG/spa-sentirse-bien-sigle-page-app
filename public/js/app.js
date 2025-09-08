@@ -59,6 +59,16 @@ class SpaApp {
       // Actualizar URL
       window.history.pushState({}, "", `#${page}`);
 
+      // Remover clases anteriores de página
+      document.body.classList.remove(
+        "page-home",
+        "page-servicios",
+        "page-contacto",
+        "page-productos"
+      );
+      // Agregar clase de página actual
+      document.body.classList.add(`page-${page}`);
+
       // Cargar contenido de la página
       const response = await fetch(this.pages[page]);
       const html = await response.text();
