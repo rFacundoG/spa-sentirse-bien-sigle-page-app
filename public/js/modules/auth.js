@@ -1,57 +1,103 @@
 // src/js/modules/auth.js
 class AuthManager {
   constructor() {
+    if (AuthManager.instance) {
+      return AuthManager.instance;
+    }
+    AuthManager.instance = this;
+
     this.currentUser = null;
+    this.auth = firebase.auth();
+    this.isInitialized = false;
     this.init();
   }
 
   init() {
-    // Verificar si hay un usuario en localStorage al inicializar
-    const savedUser = localStorage.getItem("spaUser");
-    if (savedUser) {
-      this.currentUser = JSON.parse(savedUser);
-      this.updateAuthUI();
-    }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
 
-    // Configurar event listeners para los formularios
+    // Escuchar cambios en el estado de autenticación
+    this.auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Usuario ha iniciado sesión
+        this.currentUser = {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || user.email.split("@")[0],
+          avatar:
+            user.photoURL ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              user.email.split("@")[0]
+            )}&background=random`,
+        };
+        localStorage.setItem("spaUser", JSON.stringify(this.currentUser));
+      } else {
+        // Usuario ha cerrado sesión
+        this.currentUser = null;
+        localStorage.removeItem("spaUser");
+      }
+      this.updateAuthUI();
+    });
+
+    // Configurar event listeners una sola vez
     this.setupAuthListeners();
   }
 
   setupAuthListeners() {
-    // Usar event delegation para los formularios que se cargan dinámicamente
-    document.addEventListener("submit", (e) => {
-      if (e.target.matches("#formLogin")) {
-        e.preventDefault();
-        this.handleLogin(e.target);
-      }
+    // Remover event listeners existentes para evitar duplicados
+    document.removeEventListener("submit", this.boundHandleSubmit);
+    document.removeEventListener("click", this.boundHandleClick);
 
-      if (e.target.matches("#formRegister")) {
-        e.preventDefault();
-        this.handleRegister(e.target);
-      }
-    });
+    // Crear versiones bindeadas de los manejadores
+    this.boundHandleSubmit = this.handleSubmit.bind(this);
+    this.boundHandleClick = this.handleClick.bind(this);
 
-    // Event listeners para los botones de toggle password
-    document.addEventListener("click", (e) => {
-      if (
-        e.target.matches(".toggle-password") ||
-        e.target.closest(".toggle-password")
-      ) {
-        this.togglePasswordVisibility(e);
-      }
-    });
+    // Agregar event listeners
+    document.addEventListener("submit", this.boundHandleSubmit);
+    document.addEventListener("click", this.boundHandleClick);
+  }
 
-    // Event listener para el logout
-    document.addEventListener("click", (e) => {
-      if (e.target.id === "logout-btn" || e.target.closest("#logout-btn")) {
-        this.handleLogout();
-      }
-    });
+  handleSubmit(e) {
+    if (e.target.matches("#formLogin")) {
+      e.preventDefault();
+      this.handleLogin(e.target);
+      return;
+    }
+
+    if (e.target.matches("#formRegister")) {
+      e.preventDefault();
+      this.handleRegister(e.target);
+      return;
+    }
+  }
+
+  handleClick(e) {
+    // Toggle password visibility
+    if (
+      e.target.matches(".toggle-password") ||
+      e.target.closest(".toggle-password")
+    ) {
+      this.togglePasswordVisibility(e);
+      return;
+    }
+
+    // Logout
+    if (e.target.id === "logout-btn" || e.target.closest("#logout-btn")) {
+      e.preventDefault();
+      this.handleLogout();
+      return;
+    }
   }
 
   async handleLogin(form) {
     const email = form.querySelector("#loginEmail").value;
     const password = form.querySelector("#loginPassword").value;
+
+    // Validación básica
+    if (!email || !password) {
+      this.showToast("Por favor, completa todos los campos.", "warning");
+      return;
+    }
 
     // Mostrar loader
     const loader = form.querySelector("#loader");
@@ -60,21 +106,8 @@ class AuthManager {
     if (loginButton) loginButton.disabled = true;
 
     try {
-      // Simular una llamada a API (en una app real, aquí usarías Firebase Auth)
-      await this.mockLoginApiCall(email, password);
-
-      // Guardar usuario en localStorage
-      this.currentUser = {
-        email: email,
-        name: email.split("@")[0],
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          email.split("@")[0]
-        )}&background=random`,
-      };
-      localStorage.setItem("spaUser", JSON.stringify(this.currentUser));
-
-      // Actualizar UI
-      this.updateAuthUI();
+      // Iniciar sesión con Firebase Auth
+      await this.auth.signInWithEmailAndPassword(email, password);
 
       // Cerrar el modal
       const loginModal = bootstrap.Modal.getInstance(
@@ -82,13 +115,24 @@ class AuthManager {
       );
       if (loginModal) loginModal.hide();
 
-      // Mostrar mensaje de éxito
-      this.showToast(
-        "¡Bienvenido! Has iniciado sesión correctamente.",
-        "success"
-      );
+      // Resetear formulario
+      form.reset();
     } catch (error) {
-      this.showToast(error.message, "danger");
+      let errorMessage = "Error al iniciar sesión. ";
+      switch (error.code) {
+        case "auth/user-not-found":
+          errorMessage += "No existe una cuenta con este email.";
+          break;
+        case "auth/wrong-password":
+          errorMessage += "Contraseña incorrecta.";
+          break;
+        case "auth/invalid-email":
+          errorMessage += "Email inválido.";
+          break;
+        default:
+          errorMessage += error.message;
+      }
+      this.showToast(errorMessage, "danger");
     } finally {
       // Ocultar loader y habilitar botón
       if (loader) loader.style.display = "none";
@@ -101,22 +145,31 @@ class AuthManager {
     const email = form.querySelector("#registerEmail").value;
     const password = form.querySelector("#registerPassword").value;
 
+    // Validación básica
+    if (!name || !email || !password) {
+      this.showToast("Por favor, completa todos los campos.", "warning");
+      return;
+    }
+
+    if (password.length < 6) {
+      this.showToast(
+        "La contraseña debe tener al menos 6 caracteres.",
+        "warning"
+      );
+      return;
+    }
+
     try {
-      // Simular registro (en una app real, aquí usarías Firebase Auth)
-      await this.mockRegisterApiCall(name, email, password);
+      // Crear usuario con Firebase Auth
+      const userCredential = await this.auth.createUserWithEmailAndPassword(
+        email,
+        password
+      );
 
-      // Guardar usuario en localStorage
-      this.currentUser = {
-        email: email,
-        name: name,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          name
-        )}&background=random`,
-      };
-      localStorage.setItem("spaUser", JSON.stringify(this.currentUser));
-
-      // Actualizar UI
-      this.updateAuthUI();
+      // Actualizar perfil del usuario con el nombre
+      await userCredential.user.updateProfile({
+        displayName: name,
+      });
 
       // Cerrar el modal
       const registerModal = bootstrap.Modal.getInstance(
@@ -124,58 +177,42 @@ class AuthManager {
       );
       if (registerModal) registerModal.hide();
 
-      // Mostrar mensaje de éxito
-      this.showToast("¡Cuenta creada correctamente! Bienvenido/a.", "success");
+      // Resetear formulario
+      form.reset();
     } catch (error) {
-      this.showToast(error.message, "danger");
+      let errorMessage = "Error al crear la cuenta. ";
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errorMessage += "Este email ya está en uso.";
+          break;
+        case "auth/weak-password":
+          errorMessage += "La contraseña es demasiado débil.";
+          break;
+        case "auth/invalid-email":
+          errorMessage += "Email inválido.";
+          break;
+        default:
+          errorMessage += error.message;
+      }
+      this.showToast(errorMessage, "danger");
     }
   }
 
-  handleLogout() {
-    this.currentUser = null;
-    localStorage.removeItem("spaUser");
-    this.updateAuthUI();
-    this.showToast("Has cerrado sesión correctamente.", "info");
-  }
-
-  mockLoginApiCall(email, password) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email && password) {
-          if (password.length < 6) {
-            reject(
-              new Error("La contraseña debe tener al menos 6 caracteres.")
-            );
-          } else {
-            resolve({ success: true });
-          }
-        } else {
-          reject(new Error("Por favor, completa todos los campos."));
-        }
-      }, 1500);
-    });
-  }
-
-  mockRegisterApiCall(name, email, password) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (name && email && password) {
-          if (password.length < 6) {
-            reject(
-              new Error("La contraseña debe tener al menos 6 caracteres.")
-            );
-          } else {
-            resolve({ success: true });
-          }
-        } else {
-          reject(new Error("Por favor, completa todos los campos."));
-        }
-      }, 1500);
-    });
+  async handleLogout() {
+    try {
+      await this.auth.signOut();
+    } catch (error) {
+      this.showToast("Error al cerrar sesión: " + error.message, "danger");
+    }
   }
 
   togglePasswordVisibility(e) {
-    const button = e.target.closest(".toggle-password");
+    const button = e.target.matches(".toggle-password")
+      ? e.target
+      : e.target.closest(".toggle-password");
+
+    if (!button) return;
+
     const input = button.closest(".form-group").querySelector("input");
     const icon = button.querySelector("i");
 
@@ -198,39 +235,61 @@ class AuthManager {
     let userItem = navbar.querySelector(".nav-user-item");
 
     if (this.currentUser) {
-      // Usuario autenticado
+      // Usuario autenticado - Mostrar solo icono y menú desplegable
       if (!userItem) {
         userItem = document.createElement("li");
         userItem.className = "nav-item dropdown nav-user-item";
         userItem.innerHTML = `
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" 
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="${this.currentUser.avatar}" class="user-avatar me-2" alt="Avatar">
-                        <span>${this.currentUser.name}</span>
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: 15px;">
+                        <img src="${this.currentUser.avatar}" class="user-avatar" alt="Avatar" 
+                             style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Mi perfil</a></li>
-                        <li><a class="dropdown-item" href="#">Mis reservas</a></li>
+                        <li class="dropdown-item-text">
+                            <div class="d-flex align-items-center">
+                                <img src="${this.currentUser.avatar}" class="user-avatar me-2" 
+                                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <strong>${this.currentUser.name}</strong>
+                                    <div class="small text-muted">${this.currentUser.email}</div>
+                                </div>
+                            </div>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" id="logout-btn">Cerrar sesión</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" id="logout-btn">
+                                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                            </a>
+                        </li>
                     </ul>
                 `;
 
-        // Insertar antes de los botones de auth
+        // Insertar en el navbar
         const authItems = navbar.querySelectorAll(".nav-auth-item");
         if (authItems.length > 0) {
-          navbar.insertBefore(userItem, authItems[0]);
+          navbar.insertBefore(userItem, authItems[0].nextSibling);
         } else {
-          navbar.appendChild(userItem);
+          // Buscar donde insertar (después del último elemento del navbar)
+          const lastNavItem = navbar.querySelector(".nav-item:last-child");
+          if (lastNavItem) {
+            navbar.insertBefore(userItem, lastNavItem.nextSibling);
+          } else {
+            navbar.appendChild(userItem);
+          }
         }
       } else {
-        // Actualizar información del usuario
+        // Actualizar información del usuario si ya existe
         const avatar = userItem.querySelector(".user-avatar");
-        const nameSpan = userItem.querySelector("span");
-        const dropdownToggle = userItem.querySelector(".dropdown-toggle");
+        const nameElement = userItem.querySelector("strong");
+        const emailElement = userItem.querySelector(".text-muted");
 
         if (avatar) avatar.src = this.currentUser.avatar;
-        if (nameSpan) nameSpan.textContent = this.currentUser.name;
+        if (nameElement) nameElement.textContent = this.currentUser.name;
+        if (emailElement) emailElement.textContent = this.currentUser.email;
       }
 
       // Ocultar botones de login/register
@@ -294,5 +353,11 @@ class AuthManager {
 
 // Inicializar AuthManager cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
-  window.authManager = new AuthManager();
+  // Esperar a que Firebase se inicialice
+  const checkFirebase = setInterval(() => {
+    if (typeof firebase !== "undefined" && firebase.apps.length > 0) {
+      clearInterval(checkFirebase);
+      window.authManager = new AuthManager();
+    }
+  }, 100);
 });
