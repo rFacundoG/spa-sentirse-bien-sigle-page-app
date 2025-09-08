@@ -1,9 +1,11 @@
 :root {
     --color-main-background: #F5F0E6;
     --color-secondary-background: #D9D2C5;
+    --color-test: #C97E6D;
     --color-btn: #8C6E5F;
     --color-btn-hover: #6F5448;
     --color-title: #4F463B;
+    --color-separator: #4F463B;
 }
 
 body.page-servicios {
@@ -26,4 +28,175 @@ body.page-servicios .section-title:after {
     width: 80px;
     height: 3px;
     background: var(--color-btn);
+}
+
+body.page-servicios .filter-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los botones se ajusten en varias filas si es necesario */
+    justify-content: center; /* Centra los botones horizontalmente */
+    gap: 10px; /* Espacio entre los botones */
+    margin-bottom: 30px;
+}
+
+body.page-servicios .filter-btn {
+    background-color: var(--color-main-background);
+    color: var(--color-btn);
+    border: 2px solid var(--color-btn);
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+body.page-servicios .filter-btn:hover,
+body.page-servicios .filter-btn.active {
+    background-color: var(--color-btn);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Mejora visual para las tarjetas de servicio */
+body.page-servicios .service-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--color-secondary-background);
+}
+
+body.page-servicios .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+body.page-servicios .service-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+body.page-servicios .service-card .card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+body.page-servicios .service-card .card-title {
+    color: var(--color-title);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+body.page-servicios .service-card .card-text {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+body.page-servicios .service-card hr {
+    border-top: 2px solid var(--color-separator);
+    margin: 1.5rem 0;
+}
+
+body.page-servicios .service-card .service-price {
+    color: var(--color-btn);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+body.page-servicios .btn-reservar {
+    background-color: var(--color-btn);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 25px;
+    font-weight: 600;
+    transition: all 0.3s;
+    width: 100%;
+    max-width: none;
+    margin-top: auto;
+}
+
+body.page-servicios .btn-reservar:hover {
+    background-color: var(--color-btn-hover);
+    transform: scale(1.05);
+}
+
+/* Nuevo loader personalizado */
+body.page-servicios .custom-loader {
+    width: 80px;
+    height: 80px;
+    margin: 2rem auto;
+    position: relative;
+}
+
+body.page-servicios.custom-loader:before,
+body.page-servicios .custom-loader:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    border: 6px solid transparent;
+    border-top-color: var(--color-btn);
+    animation: spin 1.5s linear infinite;
+}
+
+body.page-servicios .custom-loader:after {
+    border-top-color: var(--color-btn-hover);
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Animación de escalado para el loader */
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+}
+
+body.page-servicios .loader-text {
+    color: var(--color-btn);
+    font-weight: 600;
+    margin-top: 1rem;
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animación para las cards */
+.service-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: cardAppear 0.6s ease forwards;
+}
+
+@keyframes cardAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
