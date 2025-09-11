@@ -10,6 +10,7 @@ class AuthManager {
     this.auth = firebase.auth();
     this.isInitialized = false;
     this.init();
+    this.initFloatingLabels();
   }
 
   init() {
@@ -89,6 +90,40 @@ class AuthManager {
     }
   }
 
+  // Función para inicializar floating labels
+  initFloatingLabels() {
+    // Inicializar labels basado en valores existentes
+    document.querySelectorAll(".custom-input").forEach((input) => {
+      this.updateFloatingLabel(input);
+    });
+
+    // Event listeners para inputs
+    document.addEventListener("input", (e) => {
+      if (e.target.classList.contains("custom-input")) {
+        this.updateFloatingLabel(e.target);
+      }
+    });
+
+    document.addEventListener(
+      "blur",
+      (e) => {
+        if (e.target.classList.contains("custom-input")) {
+          this.updateFloatingLabel(e.target);
+        }
+      },
+      true
+    );
+  }
+
+  // Función para actualizar el estado del label
+  updateFloatingLabel(input) {
+    if (input.value) {
+      input.classList.add("has-value");
+    } else {
+      input.classList.remove("has-value");
+    }
+  }
+
   async handleLogin(form) {
     const email = form.querySelector("#loginEmail").value;
     const password = form.querySelector("#loginPassword").value;
@@ -100,10 +135,12 @@ class AuthManager {
     }
 
     // Mostrar loader
-    const loader = form.querySelector("#loader");
     const loginButton = form.querySelector("#loginButton");
+    const loader = form.querySelector("#loginLoader");
+
+    loginButton.disabled = true;
+    loginButton.classList.add("btn-loading");
     if (loader) loader.style.display = "block";
-    if (loginButton) loginButton.disabled = true;
 
     try {
       // Iniciar sesión con Firebase Auth
@@ -135,8 +172,9 @@ class AuthManager {
       this.showToast(errorMessage, "danger");
     } finally {
       // Ocultar loader y habilitar botón
+      loginButton.disabled = false;
+      loginButton.classList.remove("btn-loading");
       if (loader) loader.style.display = "none";
-      if (loginButton) loginButton.disabled = false;
     }
   }
 

@@ -1,83 +1,41 @@
-/* Estilos para el modal dividido */
-.bg-success-gradient {
-    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+/* Estilos optimizados - Manteniendo la animación del placeholder */
+.auth-modal .modal-content {
+    border-radius: 0.75rem;
+    overflow: hidden;
 }
 
-.modal-content {
-    border-radius: 0.75rem !important;
-}
-
-/* Ajustes para el panel del logo */
-.col-md-5 {
+/* Panel de branding */
+.auth-brand-panel {
+    background: linear-gradient(135deg, #8C6E5F 0%, #C1A18F 100%);
     min-height: 450px;
 }
 
-/* Estilos para los inputs */
-.input-group-text {
-    transition: all 0.2s;
+/* INPUT y LABEL - MANTENIENDO LA ANIMACIÓN ORIGINAL */
+.form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
 }
 
-.input-group:focus-within .input-group-text {
-    background-color: #e8f5e9;
-    color: #28a745;
-}
-
-/* Botón toggle password */
-#togglePassword {
-    transition: all 0.2s;
-}
-
-#togglePassword:hover {
-    background-color: #f8f9fa;
-}
-
-/* Responsive: en móviles mostramos solo el formulario */
-@media (max-width: 767.98px) {
-    .col-md-5 {
-        display: none !important;
-    }
-}
-
-/*-------------------------------------------------*/
-
-.input-group-text {
-    background-color: transparent;
-    border-color: #ddd;
-}
-
-.form-control {
-    border-color: #ddd;
-    box-shadow: none;
-}
-
-.form-control:focus {
-    border-color: #28a745;
-    box-shadow: none;
-}
-
-/*-------------------------------------------------*/
-
-/* INPUT */
 .custom-input {
     width: 100%;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 0.5rem;
-    padding: 1.2rem 0.75rem 0.4rem 0.75rem;
+    padding: 1.2rem 0.75rem 0.4rem;
     font-size: 1rem;
     background: transparent;
     transition: border-color 0.3s ease;
+    z-index: 1;
 }
 
-/* Borde verde al enfocar */
 .custom-input:focus {
     border-color: #8C6E5F;
     outline: none;
+    box-shadow: none;
 }
 
-/* LABEL FLOTANTE */
 .floating-label {
     position: absolute;
-    top: 1.05rem;
+    top: 1rem;
     left: 0.75rem;
     color: #aaa;
     font-size: 1rem;
@@ -85,31 +43,86 @@
     background: white;
     padding: 0 0.25rem;
     transition: all 0.2s ease;
-    z-index: 1;
+    z-index: 2;
 }
 
-/* ANIMACIÓN al enfocar o si hay texto */
-.custom-input:focus+.floating-label,
-.custom-input.has-value+.floating-label {
+/* CORRECCIÓN: Mantener label arriba cuando hay texto (usando clase has-value) */
+.custom-input:focus~.floating-label,
+.custom-input.has-value~.floating-label {
     top: -0.6rem;
     left: 0.6rem;
     font-size: 0.75rem;
     color: #8C6E5F;
-    z-index: 2;
 }
 
-/* BOTÓN OJO */
+/* Botón ojo para contraseña */
 .toggle-password {
     position: absolute;
     top: 50%;
-    right: 1rem;
+    right: 0.75rem;
     transform: translateY(-50%);
     background: transparent;
     border: none;
     color: #aaa;
     z-index: 3;
+    cursor: pointer;
 }
 
 .toggle-password:hover {
     color: #8C6E5F;
+}
+
+/* Estilos para botones de autenticación */
+.auth-submit-btn {
+    background-color: #8C6E5F !important;
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.auth-submit-btn:hover {
+    background-color: #A07D6D !important;
+    transform: translateY(-2px);
+}
+
+.auth-submit-btn:disabled {
+    opacity: 0.8;
+    transform: none;
+}
+
+/* Loader para botones */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .auth-brand-panel {
+        display: none !important;
+    }
 }

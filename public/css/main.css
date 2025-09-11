@@ -1,8 +1,17 @@
+/* Estilos para Sticky Footer con Flexbox */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#main-content {
+    flex-grow: 1;
+}
+
 .carousel-item img {
-    max-height: 590px;
-    /* o la altura que prefieras */
-    object-fit: cover;
-    /* recorta imagen para que encaje */
+    max-height: 590px; /* o la altura que prefieras */
+    object-fit: cover; /* recorta imagen para que encaje */
     width: 100%;
 }
 
@@ -11,9 +20,10 @@
     color: white;
 }
 
-.btn-outline-success:hover {
-    background-color: #8C6E5F;
-    border-color: #8C6E5F;
+.btn-outline-success:hover,
+.btn-outline-success:active {
+    background-color: #8C6E5F !important;
+    border-color: #8C6E5F !important;
     color: white;
 }
 

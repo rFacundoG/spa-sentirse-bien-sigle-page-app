@@ -114,7 +114,7 @@ class ServiciosModule {
         // Duración
         card.getElementById(
           "service-duration"
-        ).textContent = `Duración: ${service.duration} minutos`;
+        ).textContent = ` ${service.duration} minutos`;
 
         // Precio formateado con separador de miles
         const formattedPrice = this.formatPrice(service.price);
