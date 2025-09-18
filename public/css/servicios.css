@@ -5,6 +5,7 @@
     --color-btn: #8C6E5F;
     --color-btn-hover: #6F5448;
     --color-title: #4F463B;
+    --color-text: #706558;
     --color-separator: #4F463B;
 }
 
@@ -94,7 +95,7 @@ body.page-servicios .service-card .card-title {
 }
 
 body.page-servicios .service-card .card-text {
-    color: #6c757d;
+    color: var(--color-text);
     margin-bottom: 1.5rem;
     flex-grow: 1;
 }
@@ -199,4 +200,35 @@ body.page-servicios .loader-text {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ---- -- Cards Yoga e Hidromasaje -- -----*/
+body.page-servicios .yoga-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+body.page-servicios .yoga-features i {
+    color: var(--color-button);
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+/* ---- -- Carrusel Yoga e Hidromasaje -- ---- */
+body.page-servicios .wellness-slide {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+body.page-servicios .carousel-indicators button {
+    background-color: white;
+}
+
+body.page-servicios .carousel-control-prev-icon,
+body.page-servicios .carousel-control-next-icon {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    padding: 20px;
 }

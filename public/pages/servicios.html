@@ -18,6 +18,95 @@
             </div>
         </div>
     </div>
+
+    <!-- Servicios Grupales -->
+    <section class="mb-5">
+        <h2 class="text-center section-title">Servicios Grupales</h2>
+    
+        <!-- Carrusel Yoga e Hidromasaje -->
+        <div id="wellnessCarousel" class="carousel slide rounded" data-bs-ride="carousel" style="margin-bottom: 50px;">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#wellnessCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#wellnessCarousel" data-bs-slide-to="1"></button>
+            </div>
+    
+            <div class="carousel-inner rounded">
+                <!-- Slide Yoga -->
+                <div class="carousel-item active wellness-slide"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('assets/img/service-carrousel-yoga.webp'); background-size: cover; background-position: center;">
+                    <div class="d-flex flex-column justify-content-center align-items-center text-center text-white"
+                        style="height: 400px;">
+                        <h2 class="display-4 fw-bold mb-4">Clases de Yoga</h2>
+                        <p class="lead mb-5">Conéctate con tu ser interior en nuestras sesiones grupales de yoga</p>
+                    </div>
+                </div>
+    
+                <!-- Slide Hidromasaje -->
+                <div class="carousel-item wellness-slide"
+                    style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('assets/img/service-carrousel-hidromasage.webp'); background-size: cover; background-position: center;">
+                    <div class="d-flex flex-column justify-content-center align-items-center text-center text-white"
+                        style="height: 400px;">
+                        <h2 class="display-4 fw-bold mb-4">Hidromasaje</h2>
+                        <p class="lead mb-5">Relájate y rejuvenece con nuestras terapias de hidromasaje</p>
+                    </div>
+                </div>
+            </div>
+    
+            <button class="carousel-control-prev" type="button" data-bs-target="#wellnessCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#wellnessCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+    
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="yoga-card h-100" style="background-color: var(--color-secundario-fondo);">
+                    <h3 class="mb-4 servicio-titulo">Yoga</h3>
+                    <p class="mb-4 servicio-texto">Sesiones diseñadas para liberar tensiones y estrés mediante posturas
+                        suaves mantenidas por más tiempo, utilizando apoyos como bloques y mantas para mayor comodidad.</p>
+    
+                    <div class="yoga-features mb-4 servicio-texto">
+                        <p><i class="bi bi-calendar2-week"></i> <strong>Horarios:</strong> Lunes y Miércoles 18:00 -
+                            19:30</p>
+                        <p><i class="bi bi-people-fill"></i> <strong>Grupos:</strong> Máximo 12 personas</p>
+                        <p><i class="bi bi-geo-alt-fill"></i> <strong>Lugar:</strong> Sala de yoga con vista al
+                            jardín</p>
+                        <p><i class="bi bi-currency-dollar"></i> <strong>Precio:</strong> $40.000 por sesión o
+                            $130.000 mensual (4 sesiones)</p>
+                    </div>
+    
+                    <button class="btn btn-success w-100 py-2 rounded-pill btn-reservar-grupal"
+                        data-servicio='{"title": "Yoga", "price": "40000"}'><i
+                            class="bi bi-calendar-check me-2"></i>Reservar clase</button>
+                </div>
+            </div>
+    
+            <div class="col-md-6 mb-4">
+                <div class="yoga-card h-100" style="background-color: var(--color-secundario-fondo);">
+                    <h3 class="mb-4 servicio-titulo">Hidromasajes</h3>
+                    <p class="mb-4 servicio-texto">Disfrutá de una experiencia de relajación total con nuestros
+                        hidromasajes. Ideal para liberar
+                        tensiones, mejorar la circulación y reconectar con tu bienestar físico y mental.</p>
+    
+                    <div class="yoga-features mb-4 servicio-texto">
+                        <p><i class="bi bi-calendar2-week"></i> <strong>Horarios:</strong> Martes y Jueves 6:30 - 7:30</p>
+                        <p><i class="bi bi-people-fill"></i> <strong>Grupos:</strong> Máximo 15 personas</p>
+                        <p><i class="bi bi-geo-alt-fill"></i> <strong>Lugar:</strong> Terraza con vista al amanecer</p>
+                        <p><i class="bi bi-currency-dollar"></i> <strong>Precio:</strong> $35.000 por sesión o $120.000
+                            mensual (4 sesiones)</p>
+                    </div>
+    
+                    <button class="btn btn-success w-100 py-2 rounded-pill btn-reservar-grupal"
+                        data-servicio='{"title": "Hidromasajes", "price": "35000"}'><i
+                            class="bi bi-calendar-check me-2"></i>Reservar sesión</button>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 <!-- Template para las cards de servicios -->

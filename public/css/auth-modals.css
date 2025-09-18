@@ -1,7 +1,8 @@
-/* Estilos optimizados - Manteniendo la animación del placeholder */
+/* Estilos generales para los modales de autenticación */
 .auth-modal .modal-content {
     border-radius: 0.75rem;
     overflow: hidden;
+    border: none;
 }
 
 /* Panel de branding */
@@ -10,7 +11,7 @@
     min-height: 450px;
 }
 
-/* INPUT y LABEL - MANTENIENDO LA ANIMACIÓN ORIGINAL */
+/* INPUT y LABEL ANIMACIÓN */
 .form-group {
     position: relative;
     margin-bottom: 1.5rem;
@@ -46,7 +47,7 @@
     z-index: 2;
 }
 
-/* CORRECCIÓN: Mantener label arriba cuando hay texto (usando clase has-value) */
+/* Mantener label arriba cuando hay texto */
 .custom-input:focus~.floating-label,
 .custom-input.has-value~.floating-label {
     top: -0.6rem;
@@ -74,25 +75,29 @@
 
 /* Estilos para botones de autenticación */
 .auth-submit-btn {
-    background-color: #8C6E5F !important;
+    background-color: #8C6E5F;
     border: none;
     color: white;
     transition: all 0.3s ease;
+    position: relative;
 }
 
-.auth-submit-btn:hover {
-    background-color: #A07D6D !important;
+.auth-submit-btn:hover:not(:disabled) {
+    background-color: #A07D6D;
+    color: white;
     transform: translateY(-2px);
 }
 
 .auth-submit-btn:disabled {
+    background-color: #8C6E5F;
+    color: white;
     opacity: 0.8;
     transform: none;
+    cursor: not-allowed;
 }
 
 /* Loader para botones */
 .btn-loading {
-    position: relative;
     color: transparent !important;
 }
 
@@ -118,6 +123,21 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* Estilos para los íconos de redes sociales */
+.social-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+}
+
+.social-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #8C6E5F;
 }
 
 /* Responsive */

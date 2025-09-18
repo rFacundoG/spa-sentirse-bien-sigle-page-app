@@ -1,0 +1,136 @@
+<div class="container py-5 mt-4">
+    <div class="row">
+        <!-- Sidebar de navegación -->
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-4">
+                    <img src="" id="profile-avatar" class="rounded-circle mb-3" width="100" height="100" alt="Avatar">
+                    <h5 id="profile-name" class="card-title">Nombre Usuario</h5>
+                    <p id="profile-email" class="text-muted">usuario@ejemplo.com</p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action active"
+                        data-profile-tab="datos-personales">
+                        <i class="bi bi-person me-2"></i>Datos Personales
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" data-profile-tab="seguridad">
+                        <i class="bi bi-shield-lock me-2"></i>Seguridad
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <!-- Panel de Datos Personales -->
+            <div class="card shadow-sm" id="datos-personales-panel">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-person me-2"></i>Datos Personales</h5>
+                </div>
+                <div class="card-body">
+                    <form id="profile-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="apellido" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellido" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Correo electrónico</label>
+                                <input type="email" class="form-control" id="email" disabled>
+                                <div class="form-text">El email no puede ser modificado</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dni" class="form-label">DNI</label>
+                                <input type="text" class="form-control" id="dni">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Panel de Seguridad -->
+            <div class="card shadow-sm d-none" id="seguridad-panel">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-shield-lock me-2"></i>Seguridad</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Cambiar contraseña -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Cambiar contraseña</h6>
+                        <form id="change-password-form">
+                            <div class="mb-3">
+                                <label for="current-password" class="form-label">Contraseña actual</label>
+                                <input type="password" class="form-control" id="current-password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-password" class="form-label">Nueva contraseña</label>
+                                <input type="password" class="form-control" id="new-password" required>
+                                <div class="form-text">Mínimo 6 caracteres</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm-password" class="form-label">Confirmar nueva contraseña</label>
+                                <input type="password" class="form-control" id="confirm-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Cambiar contraseña</button>
+                        </form>
+                    </div>
+
+                    <!-- Eliminar cuenta -->
+                    <div class="border-top pt-4">
+                        <h6 class="text-danger border-bottom pb-2">Eliminar cuenta</h6>
+                        <p class="text-muted">Una vez que elimines tu cuenta, no podrás recuperarla. Por favor,
+                            asegúrate de que esto es lo que quieres hacer.</p>
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            Eliminar mi cuenta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar cuenta -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Eliminar cuenta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirmDelete">
+                    <label class="form-check-label" for="confirmDelete">
+                        Sí, quiero eliminar mi cuenta permanentemente
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label for="deletePassword" class="form-label">Ingresa tu contraseña para confirmar</label>
+                    <input type="password" class="form-control" id="deletePassword" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteAccount" disabled>Eliminar cuenta</button>
+            </div>
+        </div>
+    </div>
+</div>

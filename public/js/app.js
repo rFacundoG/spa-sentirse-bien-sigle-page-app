@@ -9,6 +9,9 @@ class SpaApp {
       home: "pages/home.html",
       servicios: "pages/servicios.html",
       contacto: "pages/contacto.html",
+      productos: "pages/productos.html", 
+      perfil: "pages/perfil.html", 
+      reservas: "pages/reservas.html", 
     };
 
     this.isInitialized = false;
@@ -64,7 +67,9 @@ class SpaApp {
         "page-home",
         "page-servicios",
         "page-contacto",
-        "page-productos"
+        "page-productos",
+        "page-perfil",
+        "page-reservas"
       );
       // Agregar clase de página actual
       document.body.classList.add(`page-${page}`);
@@ -160,6 +165,12 @@ class SpaApp {
         if (typeof ContactoModule !== "undefined") {
           const contactoModule = new ContactoModule();
           contactoModule.init();
+        }
+        break;
+      case "perfil":
+        if (typeof PerfilModule !== "undefined") {
+          const perfilModule = new PerfilModule();
+          perfilModule.init();
         }
         break;
     }

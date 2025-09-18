@@ -8,6 +8,7 @@ class AuthManager {
 
     this.currentUser = null;
     this.auth = firebase.auth();
+    this.db = firebase.firestore(); // Añadir referencia a Firestore
     this.isInitialized = false;
     this.init();
     this.initFloatingLabels();
@@ -209,6 +210,18 @@ class AuthManager {
         displayName: name,
       });
 
+      // Crear documento de usuario en Firestore
+      const user = userCredential.user;
+      await this.db.collection("users").doc(user.uid).set({
+        nombre: "", // Lo dejamos vacío para que se complete desde el perfil
+        email: user.email,
+        fechaCreacion: firebase.firestore.FieldValue.serverTimestamp(),
+        // Dejamos los otros campos vacíos para que los complete después
+        apellido: "",
+        dni: "",
+        telefono: "",
+      });
+
       // Cerrar el modal
       const registerModal = bootstrap.Modal.getInstance(
         document.getElementById("registerModal")
@@ -295,8 +308,8 @@ class AuthManager {
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
+                        <li><a class="dropdown-item" href="#" data-spa-link="perfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+                        <li><a class="dropdown-item" href="#" data-spa-link="reservas"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-danger" href="#" id="logout-btn">

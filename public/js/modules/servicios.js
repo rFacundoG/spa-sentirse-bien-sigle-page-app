@@ -149,5 +149,17 @@ class ServiciosModule {
         </div>
       `;
     }
+    // Reiniciar Carrusel Yoga e Hidromasaje
+    const carouselElement = document.getElementById("wellnessCarousel");
+    if (carouselElement) {
+      const carousel =
+        bootstrap.Carousel.getInstance(carouselElement) ||
+        new bootstrap.Carousel(carouselElement, {
+          interval: 5000,
+          ride: "carousel",
+        });
+
+      carousel.cycle();
+    }
   }
 }
