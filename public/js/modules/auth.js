@@ -213,13 +213,13 @@ class AuthManager {
       // Crear documento de usuario en Firestore
       const user = userCredential.user;
       await this.db.collection("users").doc(user.uid).set({
-        nombre: "", // Lo dejamos vacío para que se complete desde el perfil
+        nombre: "",
         email: user.email,
         fechaCreacion: firebase.firestore.FieldValue.serverTimestamp(),
-        // Dejamos los otros campos vacíos para que los complete después
         apellido: "",
         dni: "",
         telefono: "",
+        rol: "usuario",
       });
 
       // Cerrar el modal
@@ -278,7 +278,7 @@ class AuthManager {
     }
   }
 
-  updateAuthUI() {
+  async updateAuthUI() {
     const navbar = document.querySelector(".navbar-nav");
     if (!navbar) return;
 
@@ -290,34 +290,62 @@ class AuthManager {
       if (!userItem) {
         userItem = document.createElement("li");
         userItem.className = "nav-item dropdown nav-user-item";
+
+        // Verificar si el usuario es admin
+        let isAdmin = false;
+        try {
+          const userDoc = await firebase
+            .firestore()
+            .collection("users")
+            .doc(this.currentUser.uid)
+            .get();
+          isAdmin = userDoc.exists && userDoc.data().rol === "admin";
+        } catch (error) {
+          console.error("Error checking admin rol:", error);
+        }
+
+        // Crear el HTML con las opciones correspondientes
         userItem.innerHTML = `
-                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" 
-                       data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: 15px;">
-                        <img src="${this.currentUser.avatar}" class="user-avatar" alt="Avatar" 
-                             style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li class="dropdown-item-text">
-                            <div class="d-flex align-items-center">
-                                <img src="${this.currentUser.avatar}" class="user-avatar me-2" 
-                                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                                <div>
-                                    <strong>${this.currentUser.name}</strong>
-                                    <div class="small text-muted">${this.currentUser.email}</div>
-                                </div>
+                <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" 
+                   data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: 15px;">
+                    <img src="${
+                      this.currentUser.avatar
+                    }" class="user-avatar" alt="Avatar" 
+                         style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li class="dropdown-item-text">
+                        <div class="d-flex align-items-center">
+                            <img src="${
+                              this.currentUser.avatar
+                            }" class="user-avatar me-2" 
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <strong>${this.currentUser.name}</strong>
+                                <div class="small text-muted">${
+                                  this.currentUser.email
+                                }</div>
                             </div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" data-spa-link="perfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
-                        <li><a class="dropdown-item" href="#" data-spa-link="reservas"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="#" id="logout-btn">
-                                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                            </a>
-                        </li>
-                    </ul>
-                `;
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" data-spa-link="perfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+                    ${
+                      isAdmin
+                        ? `
+                    <li><a class="dropdown-item" href="#" data-spa-link="admin"><i class="bi bi-gear me-2"></i>Administración</a></li>
+                    `
+                        : ""
+                    }
+                    <li><a class="dropdown-item" href="#" data-spa-link="reservas"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#" id="logout-btn">
+                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                        </a>
+                    </li>
+                </ul>
+            `;
 
         // Insertar en el navbar
         const authItems = navbar.querySelectorAll(".nav-auth-item");
@@ -377,7 +405,7 @@ class AuthManager {
     const toast = document.createElement("div");
     toast.id = toastId;
     toast.className = `toast align-items-center text-white bg-${type} border-0`;
-    toast.setAttribute("role", "alert");
+    toast.setAttribute("rol", "alert");
     toast.setAttribute("aria-live", "assertive");
     toast.setAttribute("aria-atomic", "true");
     toast.innerHTML = `

@@ -83,3 +83,12 @@ body {
 .card-body .border-top {
     border-top: 2px solid var(--color-texto) !important;
 }
+
+/* ---- --- Estilos de Iconos del Footer -- ---- */
+.hover-scale {
+    transition: color 0.4s ease;
+}
+
+.hover-scale:hover {
+    color: #8C6E5F !important;
+}

@@ -11,7 +11,8 @@ class SpaApp {
       contacto: "pages/contacto.html",
       productos: "pages/productos.html", 
       perfil: "pages/perfil.html", 
-      reservas: "pages/reservas.html", 
+      reservas: "pages/reservas.html",
+      admin: "pages/admin.html",
     };
 
     this.isInitialized = false;
@@ -171,6 +172,12 @@ class SpaApp {
         if (typeof PerfilModule !== "undefined") {
           const perfilModule = new PerfilModule();
           perfilModule.init();
+        }
+        break;
+      case "admin":
+        if (typeof AdminModule !== "undefined") {
+          const adminModule = new AdminModule();
+          adminModule.init();
         }
         break;
     }
