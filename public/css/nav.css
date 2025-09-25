@@ -38,3 +38,75 @@
     width: 80%;
     left: 50%;
 }
+
+/* Contenedor principal de auth */
+#navAuthContainer {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    /* Altura fija para evitar saltos */
+}
+
+/* Skeleton loader para avatar */
+.auth-skeleton {
+    display: flex;
+    align-items: center;
+}
+
+.skeleton-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #495057 25%, #6c757d 50%, #495057 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border: 2px solid #dee2e6;
+}
+
+/* Botones de auth */
+.auth-buttons {
+    display: flex;
+    align-items: center;
+}
+
+/* Dropdown del usuario */
+.auth-user {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    border-color: #20c997;
+    transform: scale(1.05);
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Estados ocultos */
+.hidden {
+    display: none !important;
+}
+
+/* Transiciones suaves */
+.auth-skeleton,
+.auth-buttons,
+.auth-user {
+    transition: opacity 0.3s ease;
+}

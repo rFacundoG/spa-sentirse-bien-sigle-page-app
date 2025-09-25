@@ -9,8 +9,8 @@ class SpaApp {
       home: "pages/home.html",
       servicios: "pages/servicios.html",
       contacto: "pages/contacto.html",
-      productos: "pages/productos.html", 
-      perfil: "pages/perfil.html", 
+      productos: "pages/productos.html",
+      perfil: "pages/perfil.html",
       reservas: "pages/reservas.html",
       admin: "pages/admin.html",
     };
@@ -31,11 +31,11 @@ class SpaApp {
     // Configurar navegación
     this.setupNavigation();
 
+    // Inicializar auth manager (mostrará el skeleton automáticamente)
+    this.initAuth();
+
     // Cargar página inicial
     this.navigateTo("home");
-
-    // Inicializar auth manager después de cargar los componentes
-    this.initAuth();
   }
 
   async loadComponent(containerId, path) {

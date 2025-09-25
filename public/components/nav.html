@@ -6,10 +6,12 @@
             <img src="assets/icon/logo.png" alt="Spa Logo" width="60" class="me-2">
             <span class="text-light fs-2 playball-regular">Spa Sentirse Bien</span>
         </a>
+        
         <!-- Botón hamburguesa para móviles -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+        
         <!-- Enlaces -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
@@ -29,14 +31,26 @@
                     <a class="nav-link px-3 fw-semibold text-light nav-animated-link" href="#"
                         data-spa-link="productos">Productos</a>
                 </li>
-                <!-- Elementos de autenticación (se ocultarán/mostrarán dinámicamente) -->
-                <li class="nav-item mt-2 mt-lg-0 nav-auth-item">
-                    <button class="btn btn-outline-success ms-2 px-4 rounded-pill" data-bs-toggle="modal"
-                        data-bs-target="#loginModal">Iniciar sesión</button>
-                </li>
-                <li class="nav-item mt-2 mt-lg-0 nav-auth-item">
-                    <a class="btn btn-success ms-2 px-4 rounded-pill" data-bs-toggle="modal"
-                        data-bs-target="#registerModal">Crear cuenta</a>
+                
+                <!-- Contenedor unificado para auth (siempre presente) -->
+                <li class="nav-item mt-2 mt-lg-0" id="navAuthContainer">
+                    <!-- Skeleton loader (se muestra por defecto) -->
+                    <div class="auth-skeleton" id="authSkeleton">
+                        <div class="skeleton-avatar"></div>
+                    </div>
+                    
+                    <!-- Botones de login/register (ocultos por defecto) -->
+                    <div class="auth-buttons" id="authButtons" style="display: none;">
+                        <button class="btn btn-outline-success ms-2 px-4 rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#loginModal">Iniciar sesión</button>
+                        <a class="btn btn-success ms-2 px-4 rounded-pill" data-bs-toggle="modal"
+                            data-bs-target="#registerModal">Crear cuenta</a>
+                    </div>
+                    
+                    <!-- Dropdown del usuario (oculto por defecto) -->
+                    <div class="auth-user" id="authUser" style="display: none;">
+                        <!-- Aquí se cargará dinámicamente el dropdown del usuario -->
+                    </div>
                 </li>
             </ul>
         </div>

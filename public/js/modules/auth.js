@@ -10,6 +10,7 @@ class AuthManager {
     this.auth = firebase.auth();
     this.db = firebase.firestore(); // Añadir referencia a Firestore
     this.isInitialized = false;
+    this.authStateChecked = false; // Nueva bandera
     this.init();
     this.initFloatingLabels();
   }
@@ -18,8 +19,11 @@ class AuthManager {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
+    // Mostrar skeleton inmediatamente al iniciar
+    this.showAuthSkeleton();
+
     // Escuchar cambios en el estado de autenticación
-    this.auth.onAuthStateChanged((user) => {
+    this.auth.onAuthStateChanged(async (user) => {
       if (user) {
         // Usuario ha iniciado sesión
         this.currentUser = {
@@ -33,16 +37,120 @@ class AuthManager {
             )}&background=random`,
         };
         localStorage.setItem("spaUser", JSON.stringify(this.currentUser));
+
+        // Ocultar skeleton y mostrar usuario
+        await this.showUserDropdown();
       } else {
         // Usuario ha cerrado sesión
         this.currentUser = null;
         localStorage.removeItem("spaUser");
+
+        // Ocultar skeleton y mostrar botones
+        this.showAuthButtons();
       }
-      this.updateAuthUI();
+
+      this.authStateChecked = true;
     });
 
-    // Configurar event listeners una sola vez
     this.setupAuthListeners();
+  }
+
+  // Mostrar skeleton loader
+  showAuthSkeleton() {
+    const skeleton = document.getElementById("authSkeleton");
+    const buttons = document.getElementById("authButtons");
+    const user = document.getElementById("authUser");
+
+    if (skeleton) skeleton.style.display = "flex";
+    if (buttons) buttons.style.display = "none";
+    if (user) user.style.display = "none";
+  }
+
+  // Mostrar botones de login/register
+  showAuthButtons() {
+    const skeleton = document.getElementById("authSkeleton");
+    const buttons = document.getElementById("authButtons");
+    const user = document.getElementById("authUser");
+
+    // Transición suave: ocultar skeleton, mostrar botones
+    if (skeleton) skeleton.style.display = "none";
+    if (user) user.style.display = "none";
+    if (buttons) {
+      setTimeout(() => {
+        buttons.style.display = "flex";
+      }, 50);
+    }
+  }
+
+  // Mostrar dropdown del usuario
+  async showUserDropdown() {
+    const skeleton = document.getElementById("authSkeleton");
+    const buttons = document.getElementById("authButtons");
+    const userContainer = document.getElementById("authUser");
+
+    if (!userContainer) return;
+
+    // Verificar si es admin
+    let isAdmin = false;
+    try {
+      const userDoc = await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.currentUser.uid)
+        .get();
+      isAdmin = userDoc.exists && userDoc.data().rol === "admin";
+    } catch (error) {
+      console.error("Error checking admin rol:", error);
+    }
+
+    // Crear el HTML del dropdown del usuario
+    userContainer.innerHTML = `
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" 
+           data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: 15px;">
+            <img src="${
+              this.currentUser.avatar
+            }" class="user-avatar" alt="Avatar">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li class="dropdown-item-text">
+                <div class="d-flex align-items-center">
+                    <img src="${
+                      this.currentUser.avatar
+                    }" class="user-avatar me-2">
+                    <div>
+                        <strong>${this.currentUser.name}</strong>
+                        <div class="small text-muted">${
+                          this.currentUser.email
+                        }</div>
+                    </div>
+                </div>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" data-spa-link="perfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+            ${
+              isAdmin
+                ? `<li><a class="dropdown-item" href="#" data-spa-link="admin"><i class="bi bi-gear me-2"></i>Administración</a></li>`
+                : ""
+            }
+            <li><a class="dropdown-item" href="#" data-spa-link="reservas"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-danger" href="#" id="logout-btn">
+                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                </a>
+            </li>
+        </ul>
+      </div>
+    `;
+
+    // Transición suave: ocultar skeleton, mostrar usuario
+    if (skeleton) skeleton.style.display = "none";
+    if (buttons) buttons.style.display = "none";
+
+    setTimeout(() => {
+      userContainer.style.display = "block";
+    }, 50);
   }
 
   setupAuthListeners() {
@@ -251,9 +359,18 @@ class AuthManager {
 
   async handleLogout() {
     try {
+      // Mostrar skeleton durante el logout
+      this.showAuthSkeleton();
       await this.auth.signOut();
+      // showAuthButtons() se llamará automáticamente por onAuthStateChanged
     } catch (error) {
       this.showToast("Error al cerrar sesión: " + error.message, "danger");
+      // Si hay error, volver a mostrar el estado actual
+      if (this.currentUser) {
+        await this.showUserDropdown();
+      } else {
+        this.showAuthButtons();
+      }
     }
   }
 
@@ -275,116 +392,6 @@ class AuthManager {
       input.type = "password";
       icon.classList.remove("bi-eye");
       icon.classList.add("bi-eye-slash");
-    }
-  }
-
-  async updateAuthUI() {
-    const navbar = document.querySelector(".navbar-nav");
-    if (!navbar) return;
-
-    // Encontrar o crear el elemento de usuario
-    let userItem = navbar.querySelector(".nav-user-item");
-
-    if (this.currentUser) {
-      // Usuario autenticado - Mostrar solo icono y menú desplegable
-      if (!userItem) {
-        userItem = document.createElement("li");
-        userItem.className = "nav-item dropdown nav-user-item";
-
-        // Verificar si el usuario es admin
-        let isAdmin = false;
-        try {
-          const userDoc = await firebase
-            .firestore()
-            .collection("users")
-            .doc(this.currentUser.uid)
-            .get();
-          isAdmin = userDoc.exists && userDoc.data().rol === "admin";
-        } catch (error) {
-          console.error("Error checking admin rol:", error);
-        }
-
-        // Crear el HTML con las opciones correspondientes
-        userItem.innerHTML = `
-                <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" 
-                   data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: 15px;">
-                    <img src="${
-                      this.currentUser.avatar
-                    }" class="user-avatar" alt="Avatar" 
-                         style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li class="dropdown-item-text">
-                        <div class="d-flex align-items-center">
-                            <img src="${
-                              this.currentUser.avatar
-                            }" class="user-avatar me-2" 
-                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <strong>${this.currentUser.name}</strong>
-                                <div class="small text-muted">${
-                                  this.currentUser.email
-                                }</div>
-                            </div>
-                        </div>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-spa-link="perfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
-                    ${
-                      isAdmin
-                        ? `
-                    <li><a class="dropdown-item" href="#" data-spa-link="admin"><i class="bi bi-gear me-2"></i>Administración</a></li>
-                    `
-                        : ""
-                    }
-                    <li><a class="dropdown-item" href="#" data-spa-link="reservas"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item text-danger" href="#" id="logout-btn">
-                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                        </a>
-                    </li>
-                </ul>
-            `;
-
-        // Insertar en el navbar
-        const authItems = navbar.querySelectorAll(".nav-auth-item");
-        if (authItems.length > 0) {
-          navbar.insertBefore(userItem, authItems[0].nextSibling);
-        } else {
-          // Buscar donde insertar (después del último elemento del navbar)
-          const lastNavItem = navbar.querySelector(".nav-item:last-child");
-          if (lastNavItem) {
-            navbar.insertBefore(userItem, lastNavItem.nextSibling);
-          } else {
-            navbar.appendChild(userItem);
-          }
-        }
-      } else {
-        // Actualizar información del usuario si ya existe
-        const avatar = userItem.querySelector(".user-avatar");
-        const nameElement = userItem.querySelector("strong");
-        const emailElement = userItem.querySelector(".text-muted");
-
-        if (avatar) avatar.src = this.currentUser.avatar;
-        if (nameElement) nameElement.textContent = this.currentUser.name;
-        if (emailElement) emailElement.textContent = this.currentUser.email;
-      }
-
-      // Ocultar botones de login/register
-      document.querySelectorAll(".nav-auth-item").forEach((item) => {
-        item.style.display = "none";
-      });
-    } else {
-      // Usuario no autenticado
-      if (userItem) {
-        userItem.remove();
-      }
-
-      // Mostrar botones de login/register
-      document.querySelectorAll(".nav-auth-item").forEach((item) => {
-        item.style.display = "list-item";
-      });
     }
   }
 
