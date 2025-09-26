@@ -62,7 +62,10 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                            <button type="submit" id="save-profile-btn" class="btn btn-primary">
+                                <span class="btn-text">Guardar cambios</span>
+                                <span class="btn-loader d-none spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -90,7 +93,10 @@
                                     <label for="confirm-password" class="form-label">Confirmar nueva contraseña</label>
                                     <input type="password" class="form-control" id="confirm-password" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Cambiar contraseña</button>
+                                <button type="submit" id="change-password-btn" class="btn btn-primary">
+                                    <span class="btn-text">Cambiar contraseña</span>
+                                    <span class="btn-loader d-none spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </button>
                             </form>
                         </div>
 
@@ -132,8 +138,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteAccount" disabled>Eliminar
-                        cuenta</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAccount" disabled>
+                        <span class="btn-text">Eliminar cuenta</span>
+                        <span class="btn-loader d-none spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </div>
         </div>

@@ -27,6 +27,10 @@ class SpaApp {
     await this.loadComponent("navbar", "components/nav.html");
     await this.loadComponent("footer", "components/footer.html");
     await this.loadComponent("auth-modals", "components/auth-modals.html");
+    await this.loadComponent(
+      "user-dropdown-template-container",
+      "components/user-dropdown.html"
+    );
 
     // Configurar navegación
     this.setupNavigation();
@@ -54,8 +58,31 @@ class SpaApp {
   async loadComponent(containerId, path) {
     try {
       const response = await fetch(path);
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
       const html = await response.text();
-      document.getElementById(containerId).innerHTML = html;
+
+      // Si es el template del dropdown, lo movemos a un contenedor especial
+      if (path.includes("user-dropdown.html")) {
+        const tempContainer = document.createElement("div");
+        tempContainer.innerHTML = html;
+        const template = tempContainer.querySelector("#user-dropdown-template");
+
+        if (template) {
+          // Mover el template al body para que esté disponible globalmente
+          document.body.appendChild(template);
+        } else {
+          console.warn(
+            "Template #user-dropdown-template no encontrado en el archivo"
+          );
+        }
+      } else {
+        // Componentes normales
+        document.getElementById(containerId).innerHTML = html;
+      }
 
       // Inicializar componentes específicos después de cargarlos
       if (containerId === "navbar") {

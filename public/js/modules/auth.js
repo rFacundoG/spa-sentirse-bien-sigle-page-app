@@ -103,46 +103,38 @@ class AuthManager {
       console.error("Error checking admin rol:", error);
     }
 
-    // Crear el HTML del dropdown del usuario
-    userContainer.innerHTML = `
-      <div class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" role="button" 
-           data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: 15px;">
-            <img src="${
-              this.currentUser.avatar
-            }" class="user-avatar" alt="Avatar">
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li class="dropdown-item-text">
-                <div class="d-flex align-items-center">
-                    <img src="${
-                      this.currentUser.avatar
-                    }" class="user-avatar me-2">
-                    <div>
-                        <strong>${this.currentUser.name}</strong>
-                        <div class="small text-muted">${
-                          this.currentUser.email
-                        }</div>
-                    </div>
-                </div>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" data-spa-link="perfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
-            ${
-              isAdmin
-                ? `<li><a class="dropdown-item" href="#" data-spa-link="admin"><i class="bi bi-gear me-2"></i>Administración</a></li>`
-                : ""
-            }
-            <li><a class="dropdown-item" href="#" data-spa-link="reservas"><i class="bi bi-calendar me-2"></i>Mis reservas</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <a class="dropdown-item text-danger" href="#" id="logout-btn">
-                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                </a>
-            </li>
-        </ul>
-      </div>
-    `;
+    // Obtener el template
+    const template = document.getElementById("user-dropdown-template");
+    if (!template) {
+      console.error("Template user-dropdown-template no encontrado");
+      return;
+    }
+
+    // Clonar el template
+    const dropdownContent = template.content.cloneNode(true);
+
+    // Actualizar los datos del usuario en el template
+    const userAvatars = dropdownContent.querySelectorAll(".user-avatar");
+    const userName = dropdownContent.querySelector(".user-name");
+    const userEmail = dropdownContent.querySelector(".user-email");
+    const adminItem = dropdownContent.querySelector(".admin-item");
+
+    // Setear avatar, nombre y email
+    userAvatars.forEach((avatar) => {
+      avatar.src = this.currentUser.avatar;
+    });
+
+    if (userName) userName.textContent = this.currentUser.name;
+    if (userEmail) userEmail.textContent = this.currentUser.email;
+
+    // Mostrar/ocultar item de admin
+    if (adminItem) {
+      adminItem.classList.toggle("d-none", !isAdmin);
+    }
+
+    // Agregar el dropdown al contenedor
+    userContainer.innerHTML = "";
+    userContainer.appendChild(dropdownContent);
 
     // Transición suave: ocultar skeleton, mostrar usuario
     if (skeleton) skeleton.style.display = "none";
