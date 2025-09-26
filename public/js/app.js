@@ -34,8 +34,21 @@ class SpaApp {
     // Inicializar auth manager (mostrará el skeleton automáticamente)
     this.initAuth();
 
-    // Cargar página inicial
-    this.navigateTo("home");
+    // Cargar página basada en la URL actual, no siempre home
+    this.loadCurrentPage();
+  }
+
+  // función para cargar la página actual basada en la URL
+  loadCurrentPage() {
+    const hash = window.location.hash.substring(1);
+    const validPages = Object.keys(this.pages);
+
+    // Si la página en el hash es válida, cargarla, sino cargar home
+    if (hash && validPages.includes(hash)) {
+      this.navigateTo(hash);
+    } else {
+      this.navigateTo("home");
+    }
   }
 
   async loadComponent(containerId, path) {
@@ -56,12 +69,17 @@ class SpaApp {
   async navigateTo(page) {
     if (!this.pages[page]) {
       console.error(`Página ${page} no encontrada`);
+      // Si la página no existe, redirigir a home
+      this.navigateTo("home");
       return;
     }
 
     try {
-      // Actualizar URL
-      window.history.pushState({}, "", `#${page}`);
+      // Actualizar URL solo si es diferente a la actual
+      const currentHash = window.location.hash.substring(1);
+      if (currentHash !== page) {
+        window.history.pushState({ page }, "", `#${page}`);
+      }
 
       // Remover clases anteriores de página
       document.body.classList.remove(
@@ -70,13 +88,21 @@ class SpaApp {
         "page-contacto",
         "page-productos",
         "page-perfil",
-        "page-reservas"
+        "page-reservas",
+        "page-admin"
       );
+
       // Agregar clase de página actual
       document.body.classList.add(`page-${page}`);
 
       // Cargar contenido de la página
       const response = await fetch(this.pages[page]);
+
+      // Verificar si la página existe
+      if (!response.ok) {
+        throw new Error(`Página no encontrada: ${this.pages[page]}`);
+      }
+
       const html = await response.text();
       document.getElementById("main-content").innerHTML = html;
 
@@ -84,11 +110,16 @@ class SpaApp {
       this.initPageModules(page);
 
       // Actualizar UI de autenticación después de cargar la página
-      if (window.authManager) {
+      if (window.authManager && window.authManager.updateAuthUI) {
         window.authManager.updateAuthUI();
       }
+
+      // Scroll to top cuando se cambia de página
+      window.scrollTo(0, 0);
     } catch (error) {
       console.error(`Error loading page ${page}:`, error);
+      // Si hay error, redirigir a home
+      this.showErrorPage();
     }
   }
 
@@ -117,8 +148,8 @@ class SpaApp {
   }
 
   handlePopState() {
-    const page = window.location.hash.substring(1) || "home";
-    this.navigateTo(page);
+    // Cuando se usa el botón atrás/adelante, cargar la página desde la URL
+    this.loadCurrentPage();
   }
 
   initNavbar() {
@@ -170,8 +201,16 @@ class SpaApp {
         break;
       case "perfil":
         if (typeof PerfilModule !== "undefined") {
-          const perfilModule = new PerfilModule();
-          perfilModule.init();
+          // Verificar autenticación antes de inicializar perfil
+          if (window.authManager && window.authManager.currentUser) {
+            const perfilModule = new PerfilModule();
+            perfilModule.init();
+          } else {
+            // Si no está autenticado, redirigir a home
+            setTimeout(() => {
+              this.navigateTo("home");
+            }, 100);
+          }
         }
         break;
       case "admin":
@@ -180,6 +219,24 @@ class SpaApp {
           adminModule.init();
         }
         break;
+    }
+  }
+
+  // Función para mostrar página de error
+  showErrorPage() {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      mainContent.innerHTML = `
+      <div class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+          <div class="col-md-6 text-center">
+            <h1>¡Ups! Algo salió mal</h1>
+            <p>La página que buscas no está disponible en este momento.</p>
+            <a href="#" class="btn btn-primary" data-spa-link="home">Volver al Inicio</a>
+          </div>
+        </div>
+      </div>
+    `;
     }
   }
 }

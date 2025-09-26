@@ -3,18 +3,66 @@ class PerfilModule {
     this.currentUser = null;
     this.db = firebase.firestore();
     this.auth = firebase.auth();
+    this.authUnsubscribe = null; // Para manejar el listener de auth
+    this.userRole = "usuario"; // Valor por defecto
   }
 
   async init() {
-    this.currentUser = this.auth.currentUser;
+    // Esperar a que authManager esté listo y verificar autenticación
+    await this.waitForAuthReady();
+
     if (!this.currentUser) {
-      window.location.hash = "home";
+      console.log("Usuario no autenticado, redirigiendo a home");
+      window.spaApp.navigateTo("home");
       return;
     }
 
     this.setupEventListeners();
     await this.loadUserData();
     this.updateProfileUI();
+
+    // Escuchar cambios de autenticación
+    this.setupAuthListener();
+  }
+
+  // Esperar a que authManager esté listo
+  waitForAuthReady() {
+    return new Promise((resolve) => {
+      const checkAuth = () => {
+        if (window.authManager && window.authManager.authStateChecked) {
+          // Obtener el usuario real de Firebase Auth
+          const firebaseUser = this.auth.currentUser;
+          if (firebaseUser) {
+            this.currentUser = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
+            };
+          } else {
+            this.currentUser = window.authManager.currentUser;
+          }
+          resolve();
+        } else {
+          setTimeout(checkAuth, 100);
+        }
+      };
+      checkAuth();
+    });
+  }
+
+  // Escuchar cambios de autenticación
+  setupAuthListener() {
+    this.authUnsubscribe = this.auth.onAuthStateChanged((user) => {
+      if (!user) {
+        // Usuario cerró sesión, redirigir a home
+        console.log("Sesión cerrada, redirigiendo a home");
+        if (this.authUnsubscribe) {
+          this.authUnsubscribe(); // Limpiar listener
+        }
+        window.spaApp.navigateTo("home");
+      }
+    });
   }
 
   setupEventListeners() {
@@ -27,30 +75,47 @@ class PerfilModule {
     });
 
     // Formulario de datos personales
-    document.getElementById("profile-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      this.saveProfileData();
-    });
+    const profileForm = document.getElementById("profile-form");
+    if (profileForm) {
+      profileForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.saveProfileData();
+      });
+    }
 
     // Formulario de cambio de contraseña
-    document
-      .getElementById("change-password-form")
-      .addEventListener("submit", (e) => {
+    const passwordForm = document.getElementById("change-password-form");
+    if (passwordForm) {
+      passwordForm.addEventListener("submit", (e) => {
         e.preventDefault();
         this.changePassword();
       });
+    }
 
     // Modal de eliminar cuenta
-    document.getElementById("confirmDelete").addEventListener("change", (e) => {
-      document.getElementById("confirmDeleteAccount").disabled =
-        !e.target.checked;
-    });
+    const confirmDelete = document.getElementById("confirmDelete");
+    if (confirmDelete) {
+      confirmDelete.addEventListener("change", (e) => {
+        const deleteBtn = document.getElementById("confirmDeleteAccount");
+        if (deleteBtn) {
+          deleteBtn.disabled = !e.target.checked;
+        }
+      });
+    }
 
-    document
-      .getElementById("confirmDeleteAccount")
-      .addEventListener("click", () => {
+    const confirmDeleteAccount = document.getElementById(
+      "confirmDeleteAccount"
+    );
+    if (confirmDeleteAccount) {
+      confirmDeleteAccount.addEventListener("click", () => {
         this.deleteAccount();
       });
+    }
+
+    // Limpiar listener cuando se salga de la página
+    window.addEventListener("beforeunload", () => {
+      this.cleanup();
+    });
   }
 
   async loadUserData() {
@@ -64,59 +129,122 @@ class PerfilModule {
       if (userDoc.exists) {
         const userData = userDoc.data();
         // Llenar formulario con datos existentes
-        document.getElementById("nombre").value = userData.nombre || "";
-        document.getElementById("apellido").value = userData.apellido || "";
-        document.getElementById("telefono").value = userData.telefono || "";
-        document.getElementById("dni").value = userData.dni || "";
+        this.setFormValue("nombre", userData.nombre);
+        this.setFormValue("apellido", userData.apellido);
+        this.setFormValue("telefono", userData.telefono);
+        this.setFormValue("dni", userData.dni);
+
+        // Guardar el rol para usarlo en la UI
+        this.userRole = userData.rol || "usuario";
       }
 
       // Datos básicos de Authentication
-      document.getElementById("email").value = this.currentUser.email;
+      this.setFormValue("email", this.currentUser.email);
     } catch (error) {
       console.error("Error loading user data:", error);
       this.showToast("Error al cargar los datos del perfil", "danger");
     }
   }
 
+  // Helper para establecer valores de formulario de forma segura
+  setFormValue(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.value = value || "";
+    }
+  }
+
   updateProfileUI() {
     // Actualizar avatar y información en el sidebar
-    document.getElementById("profile-avatar").src =
-      this.currentUser.photoURL ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        this.currentUser.displayName || this.currentUser.email
-      )}&background=random`;
+    const profileAvatar = document.getElementById("profile-avatar");
+    const profileName = document.getElementById("profile-name");
+    const profileEmail = document.getElementById("profile-email");
+    const profileBadge = document.getElementById("profile-badge");
 
-    document.getElementById("profile-name").textContent =
-      this.currentUser.displayName || this.currentUser.email.split("@")[0];
+    if (profileAvatar) {
+      profileAvatar.src =
+        this.currentUser.photoURL ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          this.currentUser.displayName || this.currentUser.email
+        )}&background=random`;
+    }
 
-    document.getElementById("profile-email").textContent =
-      this.currentUser.email;
+    if (profileName) {
+      profileName.textContent =
+        this.currentUser.displayName || this.currentUser.email.split("@")[0];
+    }
+
+    if (profileEmail) {
+      profileEmail.textContent = this.currentUser.email;
+    }
+
+    // Actualizar badge del rol
+    if (profileBadge) {
+      profileBadge.textContent = this.getRoleDisplayName(this.userRole);
+      profileBadge.className = this.getRoleBadgeClass(this.userRole);
+    }
+  }
+
+  // Helper para mostrar nombre bonito del rol
+  getRoleDisplayName(role) {
+    const roleNames = {
+      usuario: "Usuario",
+      profesional: "Profesional",
+      admin: "Administrador",
+      ventas: "Responsable de Ventas",
+    };
+    return roleNames[role] || "Usuario";
+  }
+
+  // Helper para las clases CSS del badge según el rol
+  getRoleBadgeClass(role) {
+    const baseClass = "badge px-3 py-2 fw-bold";
+    const roleClasses = {
+      usuario: "bg-secondary",
+      profesional: "bg-info",
+      admin: "bg-danger",
+      ventas: "bg-warning text-dark",
+    };
+    return `${baseClass} ${roleClasses[role] || "bg-secondary"}`;
   }
 
   switchTab(tabName) {
     // Ocultar todos los paneles
-    document.getElementById("datos-personales-panel").classList.add("d-none");
-    document.getElementById("seguridad-panel").classList.add("d-none");
+    const panels = ["datos-personales-panel", "seguridad-panel"];
+    panels.forEach((panel) => {
+      const element = document.getElementById(panel);
+      if (element) {
+        element.classList.add("d-none");
+      }
+    });
 
     // Mostrar el panel seleccionado
-    document.getElementById(`${tabName}-panel`).classList.remove("d-none");
+    const activePanel = document.getElementById(`${tabName}-panel`);
+    if (activePanel) {
+      activePanel.classList.remove("d-none");
+    }
 
     // Actualizar navegación activa
     document.querySelectorAll("[data-profile-tab]").forEach((tab) => {
       tab.classList.remove("active");
     });
-    document
-      .querySelector(`[data-profile-tab="${tabName}"]`)
-      .classList.add("active");
+
+    const activeTab = document.querySelector(`[data-profile-tab="${tabName}"]`);
+    if (activeTab) {
+      activeTab.classList.add("active");
+    }
   }
 
   async saveProfileData() {
+    // Activar loader
+    this.setButtonLoading("save-profile-btn", true);
+
     try {
       const userData = {
-        nombre: document.getElementById("nombre").value,
-        apellido: document.getElementById("apellido").value,
-        telefono: document.getElementById("telefono").value,
-        dni: document.getElementById("dni").value,
+        nombre: document.getElementById("nombre")?.value || "",
+        apellido: document.getElementById("apellido")?.value || "",
+        telefono: document.getElementById("telefono")?.value || "",
+        dni: document.getElementById("dni")?.value || "",
         lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
@@ -129,22 +257,43 @@ class PerfilModule {
       // Actualizar displayName en Authentication si cambió
       const displayName = `${userData.nombre} ${userData.apellido}`.trim();
       if (displayName && displayName !== this.currentUser.displayName) {
-        await this.currentUser.updateProfile({
-          displayName: displayName,
-        });
+        const firebaseUser = this.auth.currentUser;
+        if (firebaseUser) {
+          await firebaseUser.updateProfile({
+            displayName: displayName,
+          });
+
+          // Actualizar el currentUser en authManager
+          if (window.authManager) {
+            window.authManager.currentUser = {
+              ...window.authManager.currentUser,
+              displayName: displayName,
+              name: displayName,
+            };
+            window.authManager.updateAuthUI();
+          }
+        }
       }
 
       this.showToast("Datos guardados correctamente", "success");
     } catch (error) {
       console.error("Error saving profile data:", error);
       this.showToast("Error al guardar los datos", "danger");
+    } finally {
+      // Desactivar loader siempre
+      this.setButtonLoading("save-profile-btn", false);
     }
   }
 
   async changePassword() {
-    const currentPassword = document.getElementById("current-password").value;
-    const newPassword = document.getElementById("new-password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
+    const currentPassword = document.getElementById("current-password")?.value;
+    const newPassword = document.getElementById("new-password")?.value;
+    const confirmPassword = document.getElementById("confirm-password")?.value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      this.showToast("Por favor, completa todos los campos", "warning");
+      return;
+    }
 
     if (newPassword !== confirmPassword) {
       this.showToast("Las contraseñas no coinciden", "warning");
@@ -159,20 +308,34 @@ class PerfilModule {
       return;
     }
 
+    // Activar loader
+    this.setButtonLoading("change-password-btn", true);
+
     try {
+      // Usar el usuario actual de Firebase Auth
+      const firebaseUser = this.auth.currentUser;
+      if (!firebaseUser) {
+        this.showToast(
+          "No se pudo obtener la información del usuario",
+          "danger"
+        );
+        return;
+      }
+
       // Reautenticar al usuario antes de cambiar la contraseña
       const credential = firebase.auth.EmailAuthProvider.credential(
-        this.currentUser.email,
+        firebaseUser.email,
         currentPassword
       );
 
-      await this.currentUser.reauthenticateWithCredential(credential);
+      await firebaseUser.reauthenticateWithCredential(credential);
 
       // Cambiar contraseña
-      await this.currentUser.updatePassword(newPassword);
+      await firebaseUser.updatePassword(newPassword);
 
       // Limpiar formulario
-      document.getElementById("change-password-form").reset();
+      const form = document.getElementById("change-password-form");
+      if (form) form.reset();
 
       this.showToast("Contraseña cambiada correctamente", "success");
     } catch (error) {
@@ -187,42 +350,58 @@ class PerfilModule {
       }
 
       this.showToast(errorMessage, "danger");
+    } finally {
+      // Desactivar loader siempre
+      this.setButtonLoading("change-password-btn", false);
     }
   }
 
   async deleteAccount() {
-    const password = document.getElementById("deletePassword").value;
+    const password = document.getElementById("deletePassword")?.value;
 
     if (!password) {
       this.showToast("Por favor ingresa tu contraseña", "warning");
       return;
     }
 
+    // Activar loader
+    this.setButtonLoading("confirmDeleteAccount", true);
+
     try {
+      // Usar el usuario actual de Firebase Auth
+      const firebaseUser = this.auth.currentUser;
+      if (!firebaseUser) {
+        this.showToast(
+          "No se pudo obtener la información del usuario",
+          "danger"
+        );
+        return;
+      }
+
       // Reautenticar al usuario
       const credential = firebase.auth.EmailAuthProvider.credential(
-        this.currentUser.email,
+        firebaseUser.email,
         password
       );
 
-      await this.currentUser.reauthenticateWithCredential(credential);
+      await firebaseUser.reauthenticateWithCredential(credential);
 
       // Primero eliminar datos de Firestore
-      await this.db.collection("users").doc(this.currentUser.uid).delete();
+      await this.db.collection("users").doc(firebaseUser.uid).delete();
 
       // Luego eliminar la cuenta de Authentication
-      await this.currentUser.delete();
+      await firebaseUser.delete();
 
       // Cerrar modal
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("deleteAccountModal")
-      );
-      modal.hide();
+      const modalElement = document.getElementById("deleteAccountModal");
+      if (modalElement) {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) modal.hide();
+      }
 
       this.showToast("Cuenta eliminada correctamente", "info");
 
-      // Redirigir al home
-      window.location.hash = "home";
+      // La redirección se manejará automáticamente por el auth listener
     } catch (error) {
       console.error("Error deleting account:", error);
 
@@ -232,6 +411,38 @@ class PerfilModule {
       }
 
       this.showToast(errorMessage, "danger");
+    } finally {
+      // Desactivar loader siempre
+      this.setButtonLoading("confirmDeleteAccount", false);
+    }
+  }
+
+  // Helper para manejar estados de loading en botones
+  setButtonLoading(buttonId, isLoading) {
+    const button = document.getElementById(buttonId);
+    if (!button) return;
+
+    const btnText = button.querySelector(".btn-text");
+    const btnLoader = button.querySelector(".btn-loader");
+
+    if (isLoading) {
+      button.disabled = true;
+      button.classList.add("btn-loading");
+      if (btnText) btnText.style.opacity = "0";
+      if (btnLoader) btnLoader.classList.remove("d-none");
+    } else {
+      button.disabled = false;
+      button.classList.remove("btn-loading");
+      if (btnText) btnText.style.opacity = "1";
+      if (btnLoader) btnLoader.classList.add("d-none");
+    }
+  }
+
+  // Limpiar recursos
+  cleanup() {
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+      this.authUnsubscribe = null;
     }
   }
 
