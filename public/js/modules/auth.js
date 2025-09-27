@@ -388,44 +388,12 @@ class AuthManager {
   }
 
   showToast(message, type = "info") {
-    // Crear toast container si no existe
-    let toastContainer = document.getElementById("toast-container");
-    if (!toastContainer) {
-      toastContainer = document.createElement("div");
-      toastContainer.id = "toast-container";
-      toastContainer.className =
-        "toast-container position-fixed top-0 end-0 p-3";
-      toastContainer.style.zIndex = "1060";
-      document.body.appendChild(toastContainer);
+    if (window.toastManager && typeof window.toastManager.show === "function") {
+      window.toastManager.show(message, type);
+    } else {
+      // Fallback por si el toastManager no está cargado
+      console.log(`${type.toUpperCase()}: ${message}`);
     }
-
-    // Crear toast
-    const toastId = "toast-" + Date.now();
-    const toast = document.createElement("div");
-    toast.id = toastId;
-    toast.className = `toast align-items-center text-white bg-${type} border-0`;
-    toast.setAttribute("rol", "alert");
-    toast.setAttribute("aria-live", "assertive");
-    toast.setAttribute("aria-atomic", "true");
-    toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        `;
-
-    toastContainer.appendChild(toast);
-
-    // Mostrar toast
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-
-    // Eliminar toast después de ocultarse
-    toast.addEventListener("hidden.bs.toast", () => {
-      toast.remove();
-    });
   }
 }
 

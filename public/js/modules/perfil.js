@@ -33,9 +33,13 @@ class PerfilModule {
   // Centraliza la obtención de elementos del DOM
   cacheDOMElements() {
     this.elements.profileForm = document.getElementById("profile-form");
-    this.elements.passwordForm = document.getElementById("change-password-form");
+    this.elements.passwordForm = document.getElementById(
+      "change-password-form"
+    );
     this.elements.confirmDelete = document.getElementById("confirmDelete");
-    this.elements.confirmDeleteAccountBtn = document.getElementById("confirmDeleteAccount");
+    this.elements.confirmDeleteAccountBtn = document.getElementById(
+      "confirmDeleteAccount"
+    );
     this.elements.tabs = document.querySelectorAll("[data-profile-tab]");
   }
 
@@ -49,20 +53,36 @@ class PerfilModule {
 
   setupEventListeners() {
     // Navegación entre pestañas
-    this.elements.tabs.forEach((tab) => tab.addEventListener("click", this.boundHandleTabClick));
+    this.elements.tabs.forEach((tab) =>
+      tab.addEventListener("click", this.boundHandleTabClick)
+    );
 
     // Formulario de datos personales
-    this.elements.profileForm?.addEventListener("submit", this.boundSaveProfileData);
+    this.elements.profileForm?.addEventListener(
+      "submit",
+      this.boundSaveProfileData
+    );
 
     // Formulario de cambio de contraseña
-    this.elements.passwordForm?.addEventListener("submit", this.boundChangePassword);
+    this.elements.passwordForm?.addEventListener(
+      "submit",
+      this.boundChangePassword
+    );
 
     // Modal de eliminar cuenta
-    this.elements.confirmDelete?.addEventListener("change", this.boundHandleDeleteConfirm);
-    this.elements.confirmDeleteAccountBtn?.addEventListener("click", this.boundDeleteAccount);
+    this.elements.confirmDelete?.addEventListener(
+      "change",
+      this.boundHandleDeleteConfirm
+    );
+    this.elements.confirmDeleteAccountBtn?.addEventListener(
+      "click",
+      this.boundDeleteAccount
+    );
 
     // Escuchar cambios de autenticación para reaccionar si el usuario cierra sesión
-    this.authUnsubscribe = this.auth.onAuthStateChanged(this.boundHandleAuthChange);
+    this.authUnsubscribe = this.auth.onAuthStateChanged(
+      this.boundHandleAuthChange
+    );
   }
 
   handleTabClick(e) {
@@ -410,23 +430,32 @@ class PerfilModule {
     }
 
     // Eliminar otros event listeners
-    this.elements.tabs.forEach((tab) => tab.removeEventListener("click", this.boundHandleTabClick));
-    this.elements.profileForm?.removeEventListener("submit", this.boundSaveProfileData);
-    this.elements.passwordForm?.removeEventListener("submit", this.boundChangePassword);
-    this.elements.confirmDelete?.removeEventListener("change", this.boundHandleDeleteConfirm);
-    this.elements.confirmDeleteAccountBtn?.removeEventListener("click", this.boundDeleteAccount);
-
+    this.elements.tabs.forEach((tab) =>
+      tab.removeEventListener("click", this.boundHandleTabClick)
+    );
+    this.elements.profileForm?.removeEventListener(
+      "submit",
+      this.boundSaveProfileData
+    );
+    this.elements.passwordForm?.removeEventListener(
+      "submit",
+      this.boundChangePassword
+    );
+    this.elements.confirmDelete?.removeEventListener(
+      "change",
+      this.boundHandleDeleteConfirm
+    );
+    this.elements.confirmDeleteAccountBtn?.removeEventListener(
+      "click",
+      this.boundDeleteAccount
+    );
   }
 
   showToast(message, type = "info") {
-    // Usar el mismo método de toast que en auth.js
-    if (
-      window.authManager &&
-      typeof window.authManager.showToast === "function"
-    ) {
-      window.authManager.showToast(message, type);
+    if (window.toastManager && typeof window.toastManager.show === "function") {
+      window.toastManager.show(message, type);
     } else {
-      // Implementación básica de toast como fallback
+      // Fallback
       alert(`${type.toUpperCase()}: ${message}`);
     }
   }

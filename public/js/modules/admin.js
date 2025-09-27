@@ -343,12 +343,10 @@ class AdminModule {
   }
 
   showToast(message, type = "info") {
-    if (
-      window.authManager &&
-      typeof window.authManager.showToast === "function"
-    ) {
-      window.authManager.showToast(message, type);
+    if (window.toastManager && typeof window.toastManager.show === "function") {
+      window.toastManager.show(message, type);
     } else {
+      // Fallback
       alert(`${type.toUpperCase()}: ${message}`);
     }
   }
