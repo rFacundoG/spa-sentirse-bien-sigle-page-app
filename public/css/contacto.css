@@ -7,12 +7,15 @@
     --bg-light: #FFFDFA;
 }
 
+body.page-contacto {
+    background-color: var(--color-main-background);
+    padding-top: 80px;
+}
+
 body.page-contacto .contact-page-container {
-    background-color: var(--bg-light);
     color: var(--text-dark);
     font-family: 'Raleway', sans-serif;
     line-height: 1.6;
-    margin-top: 60px;
 }
 
 body.page-contacto .contact-page-container .contact-wrapper {

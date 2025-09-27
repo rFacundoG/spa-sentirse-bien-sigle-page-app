@@ -16,6 +16,7 @@ class SpaApp {
     };
 
     this.isInitialized = false;
+    this.currentPageModule = null; // Para mantener una referencia al módulo de la página actual
     this.init();
   }
 
@@ -128,6 +129,12 @@ class SpaApp {
       // Verificar si la página existe
       if (!response.ok) {
         throw new Error(`Página no encontrada: ${this.pages[page]}`);
+      }
+
+      // Limpiar el módulo de la página anterior antes de cargar la nueva
+      if (this.currentPageModule && typeof this.currentPageModule.destroy === 'function') {
+        this.currentPageModule.destroy();
+        this.currentPageModule = null;
       }
 
       const html = await response.text();

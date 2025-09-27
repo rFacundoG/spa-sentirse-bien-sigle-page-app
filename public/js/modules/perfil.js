@@ -1,121 +1,79 @@
 class PerfilModule {
   constructor() {
-    this.currentUser = null;
     this.db = firebase.firestore();
     this.auth = firebase.auth();
-    this.authUnsubscribe = null; // Para manejar el listener de auth
-    this.userRole = "usuario"; // Valor por defecto
+    this.currentUser = window.authManager?.currentUser; // Obtener usuario desde la fuente de verdad
+    this.userDoc = null; // Para cachear los datos de Firestore
+
+    // Cachear elementos del DOM para mejor rendimiento y legibilidad
+    this.elements = {};
+
+    // Bind de los manejadores de eventos para poder añadirlos y quitarlos correctamente
+    this.boundHandleTabClick = this.handleTabClick.bind(this);
+    this.boundSaveProfileData = this.saveProfileData.bind(this);
+    this.boundChangePassword = this.changePassword.bind(this);
+    this.boundHandleDeleteConfirm = this.handleDeleteConfirm.bind(this);
+    this.boundDeleteAccount = this.deleteAccount.bind(this);
+    this.boundHandleAuthChange = this.handleAuthChange.bind(this);
   }
 
   async init() {
-    // Esperar a que authManager esté listo y verificar autenticación
-    await this.waitForAuthReady();
-
+    // El router (app.js) ya verifica la autenticación antes de instanciar el módulo.
     if (!this.currentUser) {
       console.log("Usuario no autenticado, redirigiendo a home");
       window.spaApp.navigateTo("home");
       return;
     }
 
+    this.cacheDOMElements();
     this.setupEventListeners();
     await this.loadUserData();
-    this.updateProfileUI();
-
-    // Escuchar cambios de autenticación
-    this.setupAuthListener();
   }
 
-  // Esperar a que authManager esté listo
-  waitForAuthReady() {
-    return new Promise((resolve) => {
-      const checkAuth = () => {
-        if (window.authManager && window.authManager.authStateChecked) {
-          // Obtener el usuario real de Firebase Auth
-          const firebaseUser = this.auth.currentUser;
-          if (firebaseUser) {
-            this.currentUser = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoURL: firebaseUser.photoURL,
-            };
-          } else {
-            this.currentUser = window.authManager.currentUser;
-          }
-          resolve();
-        } else {
-          setTimeout(checkAuth, 100);
-        }
-      };
-      checkAuth();
-    });
+  // Centraliza la obtención de elementos del DOM
+  cacheDOMElements() {
+    this.elements.profileForm = document.getElementById("profile-form");
+    this.elements.passwordForm = document.getElementById("change-password-form");
+    this.elements.confirmDelete = document.getElementById("confirmDelete");
+    this.elements.confirmDeleteAccountBtn = document.getElementById("confirmDeleteAccount");
+    this.elements.tabs = document.querySelectorAll("[data-profile-tab]");
   }
 
-  // Escuchar cambios de autenticación
-  setupAuthListener() {
-    this.authUnsubscribe = this.auth.onAuthStateChanged((user) => {
-      if (!user) {
-        // Usuario cerró sesión, redirigir a home
-        console.log("Sesión cerrada, redirigiendo a home");
-        if (this.authUnsubscribe) {
-          this.authUnsubscribe(); // Limpiar listener
-        }
-        window.spaApp.navigateTo("home");
-      }
-    });
+  handleAuthChange(user) {
+    if (!user) {
+      // Usuario cerró sesión, redirigir a home
+      console.log("Sesión cerrada, redirigiendo a home");
+      window.spaApp.navigateTo("home");
+    }
   }
 
   setupEventListeners() {
     // Navegación entre pestañas
-    document.querySelectorAll("[data-profile-tab]").forEach((tab) => {
-      tab.addEventListener("click", (e) => {
-        e.preventDefault();
-        this.switchTab(e.target.getAttribute("data-profile-tab"));
-      });
-    });
+    this.elements.tabs.forEach((tab) => tab.addEventListener("click", this.boundHandleTabClick));
 
     // Formulario de datos personales
-    const profileForm = document.getElementById("profile-form");
-    if (profileForm) {
-      profileForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        this.saveProfileData();
-      });
-    }
+    this.elements.profileForm?.addEventListener("submit", this.boundSaveProfileData);
 
     // Formulario de cambio de contraseña
-    const passwordForm = document.getElementById("change-password-form");
-    if (passwordForm) {
-      passwordForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        this.changePassword();
-      });
-    }
+    this.elements.passwordForm?.addEventListener("submit", this.boundChangePassword);
 
     // Modal de eliminar cuenta
-    const confirmDelete = document.getElementById("confirmDelete");
-    if (confirmDelete) {
-      confirmDelete.addEventListener("change", (e) => {
-        const deleteBtn = document.getElementById("confirmDeleteAccount");
-        if (deleteBtn) {
-          deleteBtn.disabled = !e.target.checked;
-        }
-      });
-    }
+    this.elements.confirmDelete?.addEventListener("change", this.boundHandleDeleteConfirm);
+    this.elements.confirmDeleteAccountBtn?.addEventListener("click", this.boundDeleteAccount);
 
-    const confirmDeleteAccount = document.getElementById(
-      "confirmDeleteAccount"
-    );
-    if (confirmDeleteAccount) {
-      confirmDeleteAccount.addEventListener("click", () => {
-        this.deleteAccount();
-      });
-    }
+    // Escuchar cambios de autenticación para reaccionar si el usuario cierra sesión
+    this.authUnsubscribe = this.auth.onAuthStateChanged(this.boundHandleAuthChange);
+  }
 
-    // Limpiar listener cuando se salga de la página
-    window.addEventListener("beforeunload", () => {
-      this.cleanup();
-    });
+  handleTabClick(e) {
+    e.preventDefault();
+    this.switchTab(e.target.getAttribute("data-profile-tab"));
+  }
+
+  handleDeleteConfirm(e) {
+    if (this.elements.confirmDeleteAccountBtn) {
+      this.elements.confirmDeleteAccountBtn.disabled = !e.target.checked;
+    }
   }
 
   async loadUserData() {
@@ -126,20 +84,19 @@ class PerfilModule {
         .doc(this.currentUser.uid)
         .get();
 
-      if (userDoc.exists) {
-        const userData = userDoc.data();
-        // Llenar formulario con datos existentes
-        this.setFormValue("nombre", userData.nombre);
-        this.setFormValue("apellido", userData.apellido);
-        this.setFormValue("telefono", userData.telefono);
-        this.setFormValue("dni", userData.dni);
-
-        // Guardar el rol para usarlo en la UI
-        this.userRole = userData.rol || "usuario";
-      }
+      this.userDoc = userDoc.data() || {};
 
       // Datos básicos de Authentication
       this.setFormValue("email", this.currentUser.email);
+
+      // Llenar formulario con datos existentes de Firestore
+      this.setFormValue("nombre", this.userDoc.nombre);
+      this.setFormValue("apellido", this.userDoc.apellido);
+      this.setFormValue("telefono", this.userDoc.telefono);
+      this.setFormValue("dni", this.userDoc.dni);
+
+      // Actualizar la UI del perfil
+      this.updateProfileUI();
     } catch (error) {
       console.error("Error loading user data:", error);
       this.showToast("Error al cargar los datos del perfil", "danger");
@@ -163,25 +120,26 @@ class PerfilModule {
 
     if (profileAvatar) {
       profileAvatar.src =
-        this.currentUser.photoURL ||
+        this.currentUser.avatar || // Usar el avatar de authManager que ya tiene fallback
         `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          this.currentUser.displayName || this.currentUser.email
+          this.currentUser.name || this.currentUser.email
         )}&background=random`;
     }
 
     if (profileName) {
       profileName.textContent =
-        this.currentUser.displayName || this.currentUser.email.split("@")[0];
+        this.currentUser.name || this.currentUser.email.split("@")[0];
     }
 
     if (profileEmail) {
       profileEmail.textContent = this.currentUser.email;
     }
 
+    const userRole = this.userDoc.rol || "usuario";
     // Actualizar badge del rol
     if (profileBadge) {
-      profileBadge.textContent = this.getRoleDisplayName(this.userRole);
-      profileBadge.className = this.getRoleBadgeClass(this.userRole);
+      profileBadge.textContent = this.getRoleDisplayName(userRole);
+      profileBadge.className = this.getRoleBadgeClass(userRole);
     }
   }
 
@@ -235,8 +193,10 @@ class PerfilModule {
     }
   }
 
-  async saveProfileData() {
+  async saveProfileData(e) {
     // Activar loader
+    if (e) e.preventDefault();
+
     this.setButtonLoading("save-profile-btn", true);
 
     try {
@@ -256,21 +216,19 @@ class PerfilModule {
 
       // Actualizar displayName en Authentication si cambió
       const displayName = `${userData.nombre} ${userData.apellido}`.trim();
-      if (displayName && displayName !== this.currentUser.displayName) {
+      if (displayName && displayName !== this.currentUser.name) {
         const firebaseUser = this.auth.currentUser;
         if (firebaseUser) {
           await firebaseUser.updateProfile({
             displayName: displayName,
           });
 
-          // Actualizar el currentUser en authManager
+          // Actualizar el currentUser en authManager y forzar actualización de la UI del nav
           if (window.authManager) {
-            window.authManager.currentUser = {
-              ...window.authManager.currentUser,
-              displayName: displayName,
-              name: displayName,
-            };
-            window.authManager.updateAuthUI();
+            window.authManager.currentUser.name = displayName;
+            window.authManager.currentUser.displayName = displayName; // Por consistencia si se usa en otro lado
+            // Forzar actualización del dropdown del usuario
+            await window.authManager.showUserDropdown();
           }
         }
       }
@@ -285,7 +243,9 @@ class PerfilModule {
     }
   }
 
-  async changePassword() {
+  async changePassword(e) {
+    if (e) e.preventDefault();
+
     const currentPassword = document.getElementById("current-password")?.value;
     const newPassword = document.getElementById("new-password")?.value;
     const confirmPassword = document.getElementById("confirm-password")?.value;
@@ -356,7 +316,9 @@ class PerfilModule {
     }
   }
 
-  async deleteAccount() {
+  async deleteAccount(e) {
+    if (e) e.preventDefault();
+
     const password = document.getElementById("deletePassword")?.value;
 
     if (!password) {
@@ -439,11 +401,21 @@ class PerfilModule {
   }
 
   // Limpiar recursos
-  cleanup() {
+  destroy() {
+    console.log("Destruyendo PerfilModule y sus listeners");
+    // Eliminar listener de autenticación
     if (this.authUnsubscribe) {
       this.authUnsubscribe();
       this.authUnsubscribe = null;
     }
+
+    // Eliminar otros event listeners
+    this.elements.tabs.forEach((tab) => tab.removeEventListener("click", this.boundHandleTabClick));
+    this.elements.profileForm?.removeEventListener("submit", this.boundSaveProfileData);
+    this.elements.passwordForm?.removeEventListener("submit", this.boundChangePassword);
+    this.elements.confirmDelete?.removeEventListener("change", this.boundHandleDeleteConfirm);
+    this.elements.confirmDeleteAccountBtn?.removeEventListener("click", this.boundDeleteAccount);
+
   }
 
   showToast(message, type = "info") {
