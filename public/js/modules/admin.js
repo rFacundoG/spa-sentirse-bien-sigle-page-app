@@ -63,16 +63,15 @@ class AdminModule {
 
   async loadAdminStats() {
     try {
-      // Obtener estadísticas
-      const usersCount = await this.db.collection("users").count().get();
-      const professionalsCount = await this.db
+      // Obtener estadísticas - CORREGIDO
+      const usersSnapshot = await this.db.collection("users").get();
+      const professionalsSnapshot = await this.db
         .collection("professionals")
-        .count()
         .get();
 
-      document.getElementById("admin-stats").textContent = `${
-        usersCount.data().count
-      } usuarios | ${professionalsCount.data().count} profesionales`;
+      document.getElementById(
+        "admin-stats"
+      ).textContent = `${usersSnapshot.size} usuarios | ${professionalsSnapshot.size} profesionales`;
     } catch (error) {
       console.error("Error loading admin stats:", error);
     }
@@ -136,8 +135,10 @@ class AdminModule {
     try {
       let usersQuery = this.db.collection("users");
 
-      // Aplicar filtro si es necesario
+      // Aplicar filtro si es necesario - CORREGIDO
       if (this.currentFilter !== "all") {
+        // Si necesitas filtrar por algún campo específico, ajusta aquí
+        // Por ejemplo, si quieres filtrar por tipo de usuario:
         usersQuery = usersQuery.where("rol", "==", this.currentFilter);
       }
 
@@ -146,55 +147,52 @@ class AdminModule {
 
       if (usersSnapshot.empty) {
         tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center py-4 text-muted">
-                            No hay usuarios registrados
-                        </td>
-                    </tr>
-                `;
+        <tr>
+          <td colspan="5" class="text-center py-4 text-muted">
+            No hay usuarios registrados
+          </td>
+        </tr>
+      `;
         return;
       }
 
       let html = "";
       usersSnapshot.forEach((doc) => {
         const user = doc.data();
-        const date = user.createdAt
-          ? user.createdAt.toDate().toLocaleDateString()
+        const date = user.fechaCreacion
+          ? user.fechaCreacion.toDate().toLocaleDateString()
           : "N/A";
 
+        // Verificar si el usuario tiene rol, si no, asignar uno por defecto
+        const userRole = user.rol || "user";
+
         html += `
-                    <tr>
-                        <td>${user.nombre || "N/A"} ${user.apellido || ""}</td>
-                        <td>${user.email}</td>
-                        <td>
-                            <span class="badge ${
-                              user.rol === "admin" ? "bg-danger" : "bg-primary"
-                            }">
-                                ${
-                                  user.rol === "admin"
-                                    ? "Administrador"
-                                    : "Usuario"
-                                }
-                            </span>
-                        </td>
-                        <td>${date}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary me-1 edit-user" 
-                                    data-id="${doc.id}">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger delete-user" 
-                                    data-id="${doc.id}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+        <tr>
+          <td>${user.nombre || "N/A"} ${user.apellido || ""}</td>
+          <td>${user.email}</td>
+          <td>
+            <span class="badge ${
+              userRole === "admin" ? "bg-danger" : "bg-primary"
+            }">
+              ${userRole === "admin" ? "Administrador" : "Usuario"}
+            </span>
+          </td>
+          <td>${date}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-1 edit-user" 
+                    data-id="${doc.id}">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger delete-user" 
+                    data-id="${doc.id}">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
       });
 
       tbody.innerHTML = html;
-
-      // Agregar event listeners a los botones
       this.addUserEventListeners();
     } catch (error) {
       console.error("Error loading users:", error);
@@ -246,10 +244,50 @@ class AdminModule {
         especialidad: document.getElementById("pro-especialidad").value,
         email: document.getElementById("pro-email").value,
         telefono: document.getElementById("pro-telefono").value,
+        rol: "professional",
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
-      await this.db.collection("professionals").add(professionalData);
+      // 1. Crear usuario usando la REST API para no afectar la sesión actual
+      const API_KEY = "AIzaSyCWwxt3l9j8gnU_-mByHDb9_PWEKx5OZGk"; // Tu API key
+      const response = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: professionalData.email,
+            password: "Password123", // Contraseña temporal
+            returnSecureToken: true,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error.message);
+      }
+
+      const userId = result.localId;
+
+      // 2. Guardar profesional en Firestore
+      await this.db
+        .collection("professionals")
+        .doc(userId)
+        .set(professionalData);
+
+      // 3. Crear documento en la colección users
+      await this.db.collection("users").doc(userId).set({
+        nombre: professionalData.nombre,
+        apellido: professionalData.apellido,
+        email: professionalData.email,
+        telefono: professionalData.telefono,
+        rol: "professional",
+        fechaCreacion: firebase.firestore.FieldValue.serverTimestamp(),
+      });
 
       // Cerrar modal y limpiar formulario
       const modal = bootstrap.Modal.getInstance(
@@ -258,11 +296,17 @@ class AdminModule {
       modal.hide();
       document.getElementById("add-professional-form").reset();
 
-      this.showToast("Profesional agregado correctamente", "success");
+      this.showToast(
+        "Profesional agregado correctamente. Contraseña temporal: Password123",
+        "success"
+      );
       await this.loadProfessionals();
     } catch (error) {
       console.error("Error saving professional:", error);
-      this.showToast("Error al agregar profesional", "danger");
+      this.showToast(
+        "Error al agregar profesional: " + error.message,
+        "danger"
+      );
     }
   }
 
@@ -333,12 +377,17 @@ class AdminModule {
     }
 
     try {
+      // Eliminar de Firestore
       await this.db.collection("users").doc(userId).delete();
+
+      // Eliminar de Authentication (requiere permisos de admin)
+      await this.auth.deleteUser(userId);
+
       this.showToast("Usuario eliminado correctamente", "success");
       await this.loadUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
-      this.showToast("Error al eliminar usuario", "danger");
+      this.showToast("Error al eliminar usuario: " + error.message, "danger");
     }
   }
 

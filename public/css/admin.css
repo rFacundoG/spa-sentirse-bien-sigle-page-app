@@ -1,0 +1,305 @@
+/* Estilos específicos para el panel de administración */
+body.page-admin .admin-page-container .admin-panel {
+    background-color: var(--color-main-background);
+    min-height: 100vh;
+}
+
+body.page-admin .admin-page-container .admin-header {
+    background: linear-gradient(135deg, var(--color-title) 0%, var(--color-btn) 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(79, 70, 59, 0.1);
+}
+
+body.page-admin .admin-page-container .admin-stats-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    border: 1px solid rgba(140, 110, 95, 0.2);
+    color: #000;
+}
+
+/* Pestañas personalizadas */
+body.page-admin .admin-page-container .admin-tabs .nav-tabs {
+    border-bottom: 2px solid var(--color-secondary-background);
+    margin-bottom: 2rem;
+}
+
+body.page-admin .admin-page-container .admin-tabs .nav-link {
+    color: var(--color-text);
+    font-weight: 600;
+    border: none;
+    padding: 1rem 2rem;
+    margin-right: 0.5rem;
+    border-radius: 10px 10px 0 0;
+    background-color: var(--color-third-background);
+    transition: all 0.3s ease;
+}
+
+body.page-admin .admin-page-container .admin-tabs .nav-link:hover {
+    background-color: var(--color-btn);
+    color: white;
+    transform: translateY(-2px);
+}
+
+body.page-admin .admin-page-container .admin-tabs .nav-link.active {
+    background-color: var(--color-btn);
+    color: white;
+    border: none;
+    box-shadow: 0 -4px 12px rgba(140, 110, 95, 0.3);
+}
+
+/* Tablas estilizadas */
+body.page-admin .admin-page-container .admin-table {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(79, 70, 59, 0.08);
+}
+
+body.page-admin .admin-page-container .admin-table .table {
+    margin-bottom: 0;
+}
+
+body.page-admin .admin-page-container .admin-table thead {
+    background: linear-gradient(135deg, var(--color-btn) 0%, var(--color-title) 100%);
+    color: white;
+}
+
+body.page-admin .admin-page-container .admin-table thead th {
+    border: none;
+    padding: 1.2rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.page-admin .admin-page-container .admin-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--color-secondary-background);
+}
+
+body.page-admin .admin-page-container .admin-table tbody tr:hover {
+    background-color: var(--color-third-background);
+    transform: translateX(5px);
+}
+
+body.page-admin .admin-page-container .admin-table tbody td {
+    padding: 1.2rem 1rem;
+    vertical-align: middle;
+    border-color: var(--color-secondary-background);
+}
+
+/* Badges personalizados */
+body.page-admin .admin-page-container .badge-admin {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+body.page-admin .admin-page-container .badge-user {
+    background: linear-gradient(135deg, var(--color-btn) 0%, var(--color-btn-hover) 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+body.page-admin .admin-page-container .badge-professional {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+/* Botones de acción */
+body.page-admin .admin-page-container .btn-admin-primary {
+    background: linear-gradient(135deg, var(--color-btn) 0%, var(--color-btn-hover) 100%);
+    border: none;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(140, 110, 95, 0.3);
+}
+
+body.page-admin .admin-page-container .btn-admin-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(140, 110, 95, 0.4);
+    color: white;
+}
+
+body.page-admin .admin-page-container .btn-admin-outline {
+    border: 2px solid var(--color-btn);
+    color: var(--color-btn);
+    background: transparent;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+body.page-admin .admin-page-container .btn-admin-outline:hover {
+    background: var(--color-btn);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Botones de tabla pequeños */
+body.page-admin .admin-page-container .btn-table {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+body.page-admin .admin-page-container .btn-table:hover {
+    transform: scale(1.05);
+}
+
+/* Modales personalizados */
+body.page-admin .admin-page-container .admin-modal .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(79, 70, 59, 0.2);
+}
+
+body.page-admin .admin-page-container .admin-modal .modal-header {
+    background: linear-gradient(135deg, var(--color-title) 0%, var(--color-btn) 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 1.5rem;
+}
+
+body.page-admin .admin-page-container .admin-modal .modal-title {
+    font-weight: 700;
+}
+
+body.page-admin .admin-page-container .admin-modal .modal-body {
+    padding: 2rem;
+    background-color: var(--color-main-background);
+}
+
+body.page-admin .admin-page-container .admin-modal .form-label {
+    font-weight: 600;
+    color: var(--color-title);
+    margin-bottom: 0.5rem;
+}
+
+body.page-admin .admin-page-container .admin-modal .form-control,
+body.page-admin .admin-page-container .admin-modal .form-select {
+    border: 2px solid var(--color-secondary-background);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+body.page-admin .admin-page-container .admin-modal .form-control:focus,
+body.page-admin .admin-page-container .admin-modal .form-select:focus {
+    border-color: var(--color-btn);
+    box-shadow: 0 0 0 0.2rem rgba(140, 110, 95, 0.25);
+}
+
+/* Filtros y controles */
+body.page-admin .admin-page-container .filter-controls {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(79, 70, 59, 0.05);
+}
+
+body.page-admin .admin-page-container .dropdown-filter .dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(79, 70, 59, 0.1);
+}
+
+body.page-admin .admin-page-container .dropdown-filter .dropdown-item {
+    padding: 0.7rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+body.page-admin .admin-page-container .dropdown-filter .dropdown-item:hover {
+    background-color: var(--color-third-background);
+    color: var(--color-btn);
+}
+
+/* Estados de carga */
+body.page-admin .admin-page-container .loading-state {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body.page-admin .admin-page-container .admin-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    body.page-admin .admin-page-container .admin-tabs .nav-link {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    body.page-admin .admin-page-container .admin-table {
+        font-size: 0.9rem;
+    }
+
+    body.page-admin .admin-page-container .admin-table thead th {
+        padding: 1rem 0.5rem;
+    }
+
+    body.page-admin .admin-page-container .admin-table tbody td {
+        padding: 1rem 0.5rem;
+    }
+}
+
+/* Efectos especiales */
+body.page-admin .admin-page-container .glass-effect {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+body.page-admin .admin-page-container .shadow-custom {
+    box-shadow: 0 8px 32px 0 rgba(79, 70, 59, 0.1);
+}
+
+/* Animaciones suaves */
+body.page-admin .admin-page-container .fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
