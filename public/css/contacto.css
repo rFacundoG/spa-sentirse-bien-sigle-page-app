@@ -14,7 +14,7 @@ body.page-contacto {
 
 body.page-contacto .contact-page-container {
     color: var(--text-dark);
-    font-family: 'Raleway', sans-serif;
+    font-family: "Lora", serif;
     line-height: 1.6;
 }
 
@@ -83,6 +83,7 @@ body.page-contacto .contact-page-container .detail-icon {
     justify-content: center;
     font-size: 1.2rem;
     margin-right: 15px;
+    margin-bottom: 30px;
     flex-shrink: 0;
 }
 

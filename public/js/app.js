@@ -132,7 +132,10 @@ class SpaApp {
       }
 
       // Limpiar el módulo de la página anterior antes de cargar la nueva
-      if (this.currentPageModule && typeof this.currentPageModule.destroy === 'function') {
+      if (
+        this.currentPageModule &&
+        typeof this.currentPageModule.destroy === "function"
+      ) {
         this.currentPageModule.destroy();
         this.currentPageModule = null;
       }
@@ -219,40 +222,46 @@ class SpaApp {
   }
 
   initPageModules(page) {
+    // Limpiar módulo anterior
+    if (
+      this.currentPageModule &&
+      typeof this.currentPageModule.destroy === "function"
+    ) {
+      this.currentPageModule.destroy();
+    }
+
     // Cargar e inicializar módulos específicos de cada página
     switch (page) {
       case "servicios":
         if (typeof ServiciosModule !== "undefined") {
-          const serviciosModule = new ServiciosModule();
-          serviciosModule.init();
+          this.currentPageModule = new ServiciosModule();
+          this.currentPageModule.init();
         }
         break;
       case "contacto":
         if (typeof ContactoModule !== "undefined") {
-          const contactoModule = new ContactoModule();
-          contactoModule.init();
+          this.currentPageModule = new ContactoModule();
+          this.currentPageModule.init();
         }
         break;
       case "perfil":
         if (typeof PerfilModule !== "undefined") {
-          // Verificar autenticación antes de inicializar perfil
           if (window.authManager && window.authManager.currentUser) {
-            const perfilModule = new PerfilModule();
-            perfilModule.init();
+            this.currentPageModule = new PerfilModule();
+            this.currentPageModule.init();
           } else {
-            // Si no está autenticado, redirigir a home
-            setTimeout(() => {
-              this.navigateTo("home");
-            }, 100);
+            setTimeout(() => this.navigateTo("home"), 100);
           }
         }
         break;
       case "admin":
         if (typeof AdminModule !== "undefined") {
-          const adminModule = new AdminModule();
-          adminModule.init();
+          this.currentPageModule = new AdminModule();
+          this.currentPageModule.init();
         }
         break;
+      default:
+        this.currentPageModule = null;
     }
   }
 

@@ -50,7 +50,7 @@
                         <div class="form-pattern"></div>
                         <h2>Envíanos un Mensaje</h2>
 
-                        <form action="#" method="POST">
+                        <form id="contacto-form">
                             <div class="row mb-3">
                                 <div class="col-md-6 form-group">
                                     <label for="name" class="form-label">Nombre Completo</label>
@@ -76,12 +76,28 @@
                                     <label for="service" class="form-label">Servicio de Interés</label>
                                     <select class="form-select" id="service" name="service">
                                         <option value="">Seleccionar...</option>
-                                        <option value="masaje">Masaje Terapéutico</option>
-                                        <option value="facial">Tratamiento Facial Premium</option>
-                                        <option value="corporal">Renovación Corporal</option>
-                                        <option value="pareja">Experiencia para Parejas</option>
-                                        <option value="paquete">Paquete de Día Completo</option>
-                                        <option value="otro">Otro servicio</option>
+                                        <optgroup label="Masajes">
+                                            <option value="Masaje Circulatorio">Masaje Circulatorio</option>
+                                            <option value="Masaje Descontracturante">Masaje Descontracturante</option>
+                                            <option value="Masaje Antiestrés">Masaje Antiestrés</option>
+                                            <option value="Piedras Calientes">Piedras Calientes</option>
+                                        </optgroup>
+                                        <optgroup label="Belleza">
+                                            <option value="Lifting de Pestañas">Lifting de Pestañas</option>
+                                            <option value="Depilación Facial">Depilación Facial</option>
+                                            <option value="Manos y Pies">Manos y Pies</option>
+                                        </optgroup>
+                                        <optgroup label="Tratamientos Faciales">
+                                            <option value="Limpieza + Hidratación">Limpieza + Hidratación</option>
+                                            <option value="Criofrecuencia Facial">Criofrecuencia Facial</option>
+                                            <option value="Punta de Diamante">Punta de Diamante</option>
+                                        </optgroup>
+                                        <optgroup label="Tratamientos Corporales">
+                                            <option value="VelaSlim">VelaSlim</option>
+                                            <option value="DermoHealth">DermoHealth</option>
+                                            <option value="Criofrecuencia Corporal">Criofrecuencia Corporal</option>
+                                            <option value="Ultracavitación">Ultracavitación</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                             </div>
